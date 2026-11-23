@@ -1,0 +1,5537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>TRENTE JOURS · THIRTY DAYS — Les Douze Travaux</title>
+  <style>
+:root {
+  --bg: #070a0f;
+  --surface: #0f1520;
+  --surface-2: #161f2e;
+  --border: rgba(118, 185, 0, 0.28);
+  --green: #76b900;
+  --green-bright: #a6ff00;
+  --gold: #f5b942;
+  --coral: #ff5a5f;
+  --red: #ff2e4c;
+  --fiction: #9d6bff;
+  --fiction-bright: #c5a3ff;
+  --text: #eef3f8;
+  --muted: #93a3b8;
+  --font-ui: 'Segoe UI', 'Trebuchet MS', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, #131c29 0%, var(--bg) 72%);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  user-select: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px;
+  gap: 8px;
+}
+
+/* HUD */
+.hud {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.2fr) minmax(130px, 1.3fr) minmax(150px, 1.1fr);
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 21, 32, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+
+.hud.fiction-mode {
+  border-color: rgba(157, 107, 255, 0.55);
+  box-shadow: 0 0 18px rgba(157, 107, 255, 0.14);
+}
+
+.days-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.days-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.days-title {
+  color: var(--muted);
+}
+
+.days-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--green-bright);
+}
+
+.days-widget.warn .days-value { color: var(--gold); }
+.days-widget.danger .days-value { color: var(--red); animation: pulseText 0.6s infinite alternate; }
+
+@keyframes pulseText {
+  from { opacity: 1; }
+  to { opacity: 0.45; }
+}
+
+.days-bar-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.days-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--green), var(--green-bright));
+  border-radius: 999px;
+  transition: width 0.14s ease-out;
+}
+
+.days-widget.warn .days-bar-fill {
+  background: linear-gradient(90deg, #d98218, var(--gold));
+}
+
+.days-widget.danger .days-bar-fill {
+  background: linear-gradient(90deg, #b80f2b, var(--red));
+}
+
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.level-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.fiction-badge {
+  background: rgba(157, 107, 255, 0.22);
+  color: var(--fiction-bright);
+  border: 1px solid var(--fiction);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+}
+
+.progress-track {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2b8a3e, var(--green-bright));
+  transition: width 0.12s linear;
+}
+
+.hud.fiction-mode .progress-fill {
+  background: linear-gradient(90deg, #6741d9, var(--fiction-bright));
+}
+
+.progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.hud-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.score-widget {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+}
+
+.score-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.streak-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(245, 185, 66, 0.2);
+  color: var(--gold);
+  border: 1px solid rgba(245, 185, 66, 0.45);
+}
+
+.hud-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  min-width: 32px;
+  height: 30px;
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.08s, border-color 0.15s;
+}
+
+.icon-btn:hover { border-color: var(--green-bright); }
+.icon-btn:active { transform: scale(0.94); }
+
+/* Stage */
+.stage-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #05070b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  touch-action: none;
+}
+
+/* Touch Controls */
+.touch-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 10px 14px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.touch-group {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.touch-lanes {
+  width: 100%;
+  justify-content: space-around;
+}
+
+.touch-btn {
+  min-width: 58px;
+  height: 54px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(166, 255, 0, 0.45);
+  background: rgba(12, 18, 28, 0.78);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  backdrop-filter: blur(4px);
+  touch-action: none;
+}
+
+.touch-btn.pressed,
+.touch-btn:active {
+  background: rgba(118, 185, 0, 0.55);
+  border-color: var(--green-bright);
+  transform: scale(0.95);
+}
+
+.touch-action {
+  min-width: 96px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  background: rgba(118, 185, 0, 0.25);
+}
+
+.lane-btn {
+  flex: 1;
+  max-width: 130px;
+  height: 60px;
+  border-color: rgba(197, 163, 255, 0.65);
+  background: rgba(45, 28, 84, 0.75);
+}
+
+/* Overlay Layer */
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: rgba(5, 8, 13, 0.78);
+  backdrop-filter: blur(6px);
+  z-index: 20;
+  overflow-y: auto;
+}
+
+.overlay-layer.transparent-bg {
+  background: rgba(5, 8, 13, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.screen-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #121a27 0%, #0b1019 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.compact-card {
+  max-width: 440px;
+  text-align: center;
+}
+
+.top-utility-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.utility-right {
+  display: flex;
+  gap: 6px;
+}
+
+.god-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(245, 185, 66, 0.2);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+.pill-btn {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pill-btn:hover { border-color: var(--green-bright); }
+
+.title-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.portrait-canvas {
+  width: 120px;
+  height: 149px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 35%, rgba(118, 185, 0, 0.24), rgba(10, 15, 24, 0.9));
+  border: 1px solid var(--border);
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.title-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--green-bright);
+  text-transform: uppercase;
+}
+
+.game-title {
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  background: linear-gradient(180deg, #ffffff 20%, #b4ff4d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  cursor: pointer;
+}
+
+.subtitle {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.best-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 2px;
+}
+
+.difficulty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.diff-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.diff-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.diff-btn {
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.diff-btn.active {
+  background: rgba(118, 185, 0, 0.22);
+  border-color: var(--green-bright);
+  color: var(--green-bright);
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.cta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-primary, .btn-secondary, .btn-ghost, .btn-danger, .btn-danger-outline {
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.08s, filter 0.15s;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #8cd900, #5d9400);
+  color: #071000;
+  border: 1px solid var(--green-bright);
+  box-shadow: 0 4px 18px rgba(118, 185, 0, 0.32);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+  border: 1px solid #ff6b81;
+}
+
+.btn-danger-outline {
+  background: transparent;
+  color: #ff6b81;
+  border: 1px solid rgba(255, 46, 76, 0.45);
+}
+
+.btn-primary:hover, .btn-secondary:hover, .btn-ghost:hover { filter: brightness(1.12); }
+.btn-primary:active, .btn-secondary:active { transform: scale(0.97); }
+
+.disclaimer-footer {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 10px;
+}
+
+/* Level Select */
+.levels-screen {
+  max-width: 780px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.levels-section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: var(--green-bright);
+}
+
+.levels-section-label.fiction-label {
+  color: var(--fiction-bright);
+  margin-top: 4px;
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.level-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.level-tile:hover:not(.locked) {
+  transform: translateY(-2px);
+  border-color: var(--green-bright);
+}
+
+.level-tile.fiction {
+  border-color: rgba(157, 107, 255, 0.35);
+  background: linear-gradient(180deg, rgba(42, 26, 74, 0.55), var(--surface-2));
+}
+
+.level-tile.fiction:hover:not(.locked) {
+  border-color: var(--fiction-bright);
+}
+
+.level-tile.locked {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.tile-top {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.tile-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.tile-stars {
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+.levels-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Intro Card */
+.intro-screen.fiction-card {
+  border-color: rgba(157, 107, 255, 0.6);
+}
+
+.intro-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.intro-year {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--green-bright);
+  letter-spacing: 0.08em;
+}
+
+.fiction-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(157, 107, 255, 0.24);
+  border: 1px solid var(--fiction);
+  color: var(--fiction-bright);
+}
+
+.fiction-pill.large {
+  align-self: center;
+  font-size: 12px;
+  padding: 5px 14px;
+}
+
+.intro-title {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.fact-box, .howto-box {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fact-tag, .howto-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+}
+
+.howto-tag { color: var(--green-bright); }
+
+.fact-box p, .howto-box p {
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.input-tip {
+  font-family: var(--font-mono);
+  font-size: 12px !important;
+  color: var(--muted);
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+/* Win / Lose / Finale / Closing */
+.win-screen, .lose-screen, .finale-screen {
+  text-align: center;
+  max-width: 520px;
+}
+
+.win-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--green-bright);
+  letter-spacing: 0.12em;
+}
+
+.lose-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--red);
+  letter-spacing: 0.12em;
+}
+
+.stars-display {
+  font-size: 36px;
+  color: var(--gold);
+  letter-spacing: 6px;
+  text-shadow: 0 0 18px rgba(245, 185, 66, 0.45);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.history-note {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+  font-style: italic;
+}
+
+.settings-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.quit-confirm {
+  background: rgba(255, 46, 76, 0.12);
+  border: 1px solid rgba(255, 46, 76, 0.45);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.closing-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #dce4ef;
+}
+
+.closing-disclaimer {
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Responsive Mobile / Phone Layout */
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 4px;
+    gap: 5px;
+  }
+
+  .hud {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .hud-center {
+    grid-column: 1 / -1;
+    order: 3;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    max-width: 150px;
+  }
+
+  .title-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .best-strip {
+    justify-content: center;
+  }
+
+  .levels-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .screen-card {
+    padding: 14px;
+    gap: 10px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <!-- Top HUD Bar (visible during gameplay) -->
+    <header id="hud" class="hud hidden" aria-label="Game HUD">
+      <div class="hud-left">
+        <div class="days-widget" id="days-widget">
+          <div class="days-label-row">
+            <span class="days-title" id="hud-days-label">TRENTE JOURS</span>
+            <span class="days-value" id="hud-days-num">30.0 J</span>
+          </div>
+          <div class="days-bar-track">
+            <div class="days-bar-fill" id="hud-days-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div class="level-pill" id="hud-level-pill">
+          <span id="hud-level-tag">01 · 1978</span>
+          <span class="fiction-badge hidden" id="hud-fiction-badge">FICTION</span>
+        </div>
+        <div class="progress-track" id="hud-progress-track">
+          <div class="progress-fill" id="hud-progress-fill"></div>
+          <span class="progress-text" id="hud-progress-text">0%</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="score-widget">
+          <span class="score-val" id="hud-score">0</span>
+          <span class="streak-badge hidden" id="hud-streak">×1</span>
+        </div>
+        <div class="hud-actions">
+          <button class="icon-btn" id="btn-hud-lang" title="FR / EN">FR</button>
+          <button class="icon-btn" id="btn-hud-mute" title="Audio">🔊</button>
+          <button class="icon-btn" id="btn-hud-pause" title="Pause">⏸</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Game Stage -->
+    <main class="stage-wrap" id="stage-wrap">
+      <canvas id="game-canvas" width="960" height="540" aria-label="Thirty Days Arcade Canvas"></canvas>
+
+      <!-- Touch Controls Overlay (adaptive per level on touch / narrow screens) -->
+      <div id="touch-controls" class="touch-controls hidden" aria-label="Touch Controls">
+        <div class="touch-group touch-left" id="touch-left-group">
+          <button class="touch-btn" data-key="left" aria-label="Left">◀</button>
+          <button class="touch-btn" data-key="right" aria-label="Right">▶</button>
+        </div>
+        <div class="touch-group touch-mid hidden" id="touch-dpad-extra">
+          <button class="touch-btn" data-key="up" aria-label="Up">▲</button>
+          <button class="touch-btn" data-key="down" aria-label="Down">▼</button>
+        </div>
+        <div class="touch-group touch-lanes hidden" id="touch-lanes-group">
+          <button class="touch-btn lane-btn" data-key="lane1">I</button>
+          <button class="touch-btn lane-btn" data-key="lane2">II</button>
+          <button class="touch-btn lane-btn" data-key="lane3">III</button>
+        </div>
+        <div class="touch-group touch-right" id="touch-right-group">
+          <button class="touch-btn touch-action" data-key="action" id="touch-action-btn">ACTION</button>
+        </div>
+      </div>
+
+      <!-- Modal / Screen Layer -->
+      <div id="overlay-layer" class="overlay-layer">
+
+        <!-- TITLE SCREEN -->
+        <section id="screen-title" class="screen-card title-screen">
+          <div class="top-utility-bar">
+            <div class="utility-left">
+              <span class="god-badge hidden" id="badge-god-mode">DEV · GOD MODE</span>
+            </div>
+            <div class="utility-right">
+              <button class="pill-btn" id="btn-title-lang">FR / EN</button>
+              <button class="pill-btn" id="btn-title-mute">🔊</button>
+              <button class="pill-btn" id="btn-title-motion" title="Reduced Motion">✨</button>
+            </div>
+          </div>
+
+          <div class="title-hero">
+            <canvas id="title-portrait" class="portrait-canvas" width="140" height="174"></canvas>
+            <div class="title-copy">
+              <div class="eyebrow" id="t-eyebrow">ARCADE BIOGRAPHIQUE · 12 TRAVAUX</div>
+              <h1 class="game-title" id="title-logo" title="Tap 7× or Konami for Dev Mode">
+                <span id="t-main-title">TRENTE JOURS</span>
+              </h1>
+              <p class="subtitle" id="t-subtitle">Douze mini-jeux d'arcade inspirés du parcours de Jensen Huang — huit chapitres historiques et quatre fictions « Et si ? ».</p>
+              <div class="best-strip">
+                <span id="t-best-score">MEILLEUR SCORE : 0</span>
+                <span id="t-total-stars">★ 0 / 36</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="difficulty-row" role="group" aria-label="Difficulty">
+            <span class="diff-label" id="t-diff-label">DIFFICULTÉ</span>
+            <div class="diff-pills">
+              <button class="diff-btn" data-diff="easy" id="diff-easy">Facile</button>
+              <button class="diff-btn active" data-diff="medium" id="diff-medium">Moyen</button>
+              <button class="diff-btn" data-diff="hard" id="diff-hard">Difficile</button>
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <button class="btn-primary" id="btn-play-continue">JOUER</button>
+            <button class="btn-secondary" id="btn-open-levels">CHOISIR UN NIVEAU</button>
+          </div>
+
+          <footer class="disclaimer-footer" id="t-disclaimer">
+            Jeu de fan fictif inspiré de faits publics. Non affilié à Nvidia ni à Jensen Huang.
+          </footer>
+        </section>
+
+        <!-- LEVEL SELECT SCREEN -->
+        <section id="screen-levels" class="screen-card levels-screen hidden">
+          <div class="card-header">
+            <h2 id="t-select-title">LES DOUZE TRAVAUX</h2>
+            <div class="header-actions">
+              <button class="pill-btn" id="btn-levels-lang">FR / EN</button>
+              <button class="pill-btn" id="btn-levels-back">← RETOUR</button>
+            </div>
+          </div>
+
+          <div class="levels-section-label" id="t-sec-history">I–VIII · HISTOIRE PUBLIQUE (1978–2026)</div>
+          <div class="levels-grid" id="levels-grid-real"></div>
+
+          <div class="levels-section-label fiction-label" id="t-sec-fiction">IX–XII · FICTION / « ET SI ? »</div>
+          <div class="levels-grid" id="levels-grid-fiction"></div>
+
+          <div class="levels-footer">
+            <button class="btn-ghost" id="btn-reset-progress">Réinitialiser la progression</button>
+            <button class="btn-ghost" id="btn-view-closing">Note réelle & crédits</button>
+          </div>
+        </section>
+
+        <!-- LEVEL INTRO CARD -->
+        <section id="screen-intro" class="screen-card intro-screen hidden">
+          <div class="intro-top">
+            <span class="intro-year" id="intro-year">1978</span>
+            <span class="fiction-pill hidden" id="intro-fiction-pill">FICTION · ET SI ?</span>
+          </div>
+          <h2 class="intro-title" id="intro-title">01 · Le Prodige</h2>
+          <div class="fact-box">
+            <div class="fact-tag" id="intro-fact-tag">FAIT RÉEL</div>
+            <p id="intro-fact">À 15 ans, il termine troisième en double junior à l'U.S. Open de tennis de table.</p>
+          </div>
+          <div class="howto-box">
+            <div class="howto-tag" id="intro-howto-tag">COMMENT JOUER</div>
+            <p id="intro-howto">Renvoie la balle pour remplir la jauge.</p>
+            <p class="input-tip" id="intro-tip">Astuce clavier : ← / → pour bouger, Espace au contact pour smasher.</p>
+          </div>
+          <div class="cta-row">
+            <button class="btn-primary" id="btn-start-level">COMMENCER</button>
+            <button class="btn-secondary" id="btn-intro-back">NIVEAUX</button>
+          </div>
+        </section>
+
+        <!-- PAUSE MODAL -->
+        <section id="screen-pause" class="screen-card compact-card hidden">
+          <h2 id="t-pause-title">PAUSE</h2>
+          <p class="pause-sub" id="pause-reason"></p>
+
+          <div class="settings-mini">
+            <div class="setting-row">
+              <span id="t-set-diff">Difficulté</span>
+              <div class="diff-pills small">
+                <button class="diff-btn" data-diff="easy" id="pdiff-easy">Facile</button>
+                <button class="diff-btn" data-diff="medium" id="pdiff-medium">Moyen</button>
+                <button class="diff-btn" data-diff="hard" id="pdiff-hard">Difficile</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <span id="t-set-motion">Mouvement réduit</span>
+              <button class="pill-btn" id="btn-pause-motion">OFF</button>
+            </div>
+            <div class="setting-row">
+              <span id="t-set-audio">Son & musique</span>
+              <button class="pill-btn" id="btn-pause-mute">ON</button>
+            </div>
+            <div class="setting-row">
+              <span id="t-set-lang">Langue</span>
+              <button class="pill-btn" id="btn-pause-lang">FR / EN</button>
+            </div>
+          </div>
+
+          <div class="cta-col" id="pause-main-actions">
+            <button class="btn-primary" id="btn-resume">REPRENDRE</button>
+            <button class="btn-secondary" id="btn-pause-restart">RECOMMENCER LE NIVEAU</button>
+            <button class="btn-danger-outline" id="btn-pause-quit">QUITTER VERS LE MENU</button>
+          </div>
+
+          <div class="quit-confirm hidden" id="pause-quit-confirm">
+            <p id="t-quit-confirm-msg">Quitter ce niveau ? La tentative en cours sera perdue.</p>
+            <div class="cta-row">
+              <button class="btn-danger" id="btn-quit-yes">OUI, QUITTER</button>
+              <button class="btn-secondary" id="btn-quit-no">ANNULER</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- WIN CARD -->
+        <section id="screen-win" class="screen-card win-screen hidden">
+          <div class="win-badge" id="t-win-badge">CHAPITRE RÉUSSI</div>
+          <h2 id="win-title">Le Prodige</h2>
+          <div class="stars-display" id="win-stars">★★★</div>
+
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label" id="t-stat-days">JOURS RESTANTS</span>
+              <span class="stat-val" id="win-days">26.5 J</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" id="t-stat-streak">MEILLEURE SÉRIE</span>
+              <span class="stat-val" id="win-streak">×8</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" id="t-stat-score">SCORE DU NIVEAU</span>
+              <span class="stat-val" id="win-score">4 250</span>
+            </div>
+          </div>
+
+          <p class="history-note" id="win-note"></p>
+
+          <div class="cta-row">
+            <button class="btn-primary" id="btn-next-level">NIVEAU SUIVANT →</button>
+            <button class="btn-secondary" id="btn-win-replay">REJOUER</button>
+            <button class="btn-ghost" id="btn-win-levels">NIVEAUX</button>
+          </div>
+        </section>
+
+        <!-- BANKRUPTCY (LOSE) CARD -->
+        <section id="screen-lose" class="screen-card lose-screen hidden">
+          <div class="lose-badge" id="t-lose-badge">0 JOUR DE TRÉSORERIE</div>
+          <h2 id="t-lose-title">FAILLITE</h2>
+          <p class="lose-sub" id="lose-sub">Plus un sou en caisse. Mais l'histoire ne s'arrête pas là.</p>
+          <div class="cta-row">
+            <button class="btn-primary" id="btn-retry">RÉESSAYER</button>
+            <button class="btn-secondary" id="btn-lose-levels">NIVEAUX</button>
+          </div>
+        </section>
+
+        <!-- FINALE (IMAGINED ENDING) -->
+        <section id="screen-finale" class="screen-card finale-screen hidden">
+          <div class="fiction-pill large" id="t-finale-fiction">FIN IMAGINÉE · FICTION</div>
+          <h2 class="finale-title" id="t-finale-title">LES DOUZE TRAVAUX ACCOMPLIS !</h2>
+          <p class="finale-sub" id="t-finale-sub">L'ours de marché est vaincu. Dans cette fin imaginée, la veste en cuir reste dans la lumière.</p>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label" id="t-fin-score">SCORE TOTAL</span>
+              <span class="stat-val" id="finale-total-score">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" id="t-fin-stars">ÉTOILES</span>
+              <span class="stat-val" id="finale-total-stars">0 / 36</span>
+            </div>
+          </div>
+          <div class="cta-row">
+            <button class="btn-primary" id="btn-to-closing">RETOUR À LA RÉALITÉ →</button>
+          </div>
+        </section>
+
+        <!-- HONEST CLOSING SCREEN -->
+        <section id="screen-closing" class="screen-card closing-screen hidden">
+          <div class="eyebrow" id="t-closing-eyebrow">CE QUI EST RÉEL · CE QUI EST IMAGINÉ</div>
+          <h2 id="t-closing-title">L'histoire continue de s'écrire</h2>
+          <div class="closing-body">
+            <p id="t-closing-p1"></p>
+            <p id="t-closing-p2"></p>
+            <p class="closing-disclaimer" id="t-closing-disclaimer"></p>
+          </div>
+          <div class="cta-row">
+            <button class="btn-primary" id="btn-closing-menu">MENU PRINCIPAL</button>
+            <button class="btn-secondary" id="btn-closing-levels">CHOISIR UN NIVEAU</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+// ===== i18n.js =====
+/* Bilingual FR / EN dictionary — French-first */
+(function (global) {
+  'use strict';
+
+  const UI = {
+    fr: {
+      eyebrow: 'ARCADE BIOGRAPHIQUE · 12 TRAVAUX',
+      mainTitle: 'TRENTE JOURS',
+      subtitle: 'Douze mini-jeux d\'arcade inspirés du parcours de Jensen Huang — huit chapitres historiques et quatre fictions « Et si ? ».',
+      bestScore: (n) => `MEILLEUR SCORE : ${n.toLocaleString('fr-FR')}`,
+      totalStars: (n) => `★ ${n} / 36`,
+      diffLabel: 'DIFFICULTÉ',
+      easy: 'Facile',
+      medium: 'Moyen',
+      hard: 'Difficile',
+      playContinue: (lvl) => lvl > 1 ? `CONTINUER (NIV. ${lvl})` : 'JOUER',
+      chooseLevel: 'CHOISIR UN NIVEAU',
+      disclaimer: 'Jeu de fan fictif inspiré de faits publics. Non affilié à Nvidia ni à Jensen Huang.',
+      selectTitle: 'LES DOUZE TRAVAUX',
+      back: '← RETOUR',
+      secHistory: 'I–VIII · HISTOIRE PUBLIQUE (1978–2026)',
+      secFiction: 'IX–XII · FICTION / « ET SI ? »',
+      resetProgress: 'Réinitialiser la progression',
+      resetConfirm: 'Réinitialiser toute votre progression et vos meilleurs scores ?',
+      viewClosing: 'Note réelle & crédits',
+      daysLabel: 'TRENTE JOURS',
+      dayUnit: 'J',
+      factTag: 'FAIT RÉEL',
+      fictionFactTag: 'FAIT PUBLIC · SCÉNARIO IMAGINÉ',
+      fictionPill: 'FICTION · ET SI ?',
+      howtoTag: 'COMMENT JOUER',
+      startLevel: 'COMMENCER',
+      levelsBtn: 'NIVEAUX',
+      pauseTitle: 'PAUSE',
+      pauseAuto: 'Mis en pause automatiquement (onglet inactif).',
+      pauseManual: 'Prenez votre souffle — la trésorerie attend.',
+      setDiff: 'Difficulté',
+      setMotion: 'Mouvement réduit',
+      setAudio: 'Son & musique',
+      setLang: 'Langue',
+      resume: 'REPRENDRE',
+      restartLevel: 'RECOMMENCER LE NIVEAU',
+      quitMenu: 'QUITTER VERS LE MENU',
+      quitConfirmMsg: 'Quitter ce niveau ? La tentative en cours sera perdue.',
+      quitYes: 'OUI, QUITTER',
+      quitNo: 'ANNULER',
+      winBadge: 'CHAPITRE RÉUSSI',
+      statDays: 'JOURS RESTANTS',
+      statStreak: 'MEILLEURE SÉRIE',
+      statScore: 'SCORE DU NIVEAU',
+      nextLevel: 'NIVEAU SUIVANT →',
+      toFinale: 'VOIR LE FINAL →',
+      replay: 'REJOUER',
+      loseBadge: '0 JOUR DE TRÉSORERIE',
+      loseTitle: 'FAILLITE',
+      loseSub: 'Plus un sou en caisse. Mais une entreprise à 30 jours de la faillite sait toujours rebondir.',
+      retry: 'RÉESSAYER',
+      finaleFiction: 'FIN IMAGINÉE · FICTION',
+      finaleTitle: 'LES DOUZE TRAVAUX ACCOMPLIS !',
+      finaleSub: 'L\'ours de marché est vaincu. Dans cette fin imaginée, l\'histoire bascule du côté de la lumière.',
+      finScore: 'SCORE TOTAL',
+      finStars: 'ÉTOILES',
+      toClosing: 'RETOUR À LA RÉALITÉ →',
+      closingEyebrow: 'CE QUI EST RÉEL · CE QUI EST IMAGINÉ',
+      closingTitle: 'L\'histoire continue de s\'écrire',
+      closingP1: 'Les huit premiers niveaux s\'appuient sur des étapes publiques bien documentées du parcours de Jensen Huang et de Nvidia, de l\'U.S. Open junior de tennis de table en 1978 jusqu\'au franchissement des 5 000 milliards de dollars de valorisation en octobre 2025.',
+      closingP2: 'Les quatre derniers niveaux sont une pure fiction (« Et si ? ») construite à partir de faits publics récents : un comité indépendant d\'administrateurs mène une enquête avec un conseil externe, trois commissions de la Chambre des représentants souhaitent l\'entendre, une lettre ouverte d\'actionnaires et une pétition de plus de 170 000 signatures appellent les dix administrateurs à garder toutes les options ouvertes, et après son départ le titre a clôturé sous les 4 000 milliards de dollars. L\'issue réelle de cette histoire n\'est pas écrite : elle continue de se dérouler.',
+      closingDisclaimer: 'Jeu de fan indépendant et fictif inspiré de faits publics. Aucune affiliation avec Nvidia Corporation ni avec Jensen Huang. Aucune citation inventée.',
+      mainMenu: 'MENU PRINCIPAL',
+      on: 'ACTIF',
+      off: 'INACTIF',
+      touchAction: 'ACTION',
+      touchJump: 'SAUT',
+      touchFire: 'TIR',
+      touchCharge: 'CHARGER',
+      touchSpin: 'LANCER',
+      touchHit: 'FRAPPER'
+    },
+    en: {
+      eyebrow: 'BIOGRAPHICAL ARCADE · 12 LABOURS',
+      mainTitle: 'THIRTY DAYS',
+      subtitle: 'Twelve arcade mini-games inspired by the life of Jensen Huang — eight chapters of public history and four "What if?" fictions.',
+      bestScore: (n) => `BEST SCORE: ${n.toLocaleString('en-US')}`,
+      totalStars: (n) => `★ ${n} / 36`,
+      diffLabel: 'DIFFICULTY',
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
+      playContinue: (lvl) => lvl > 1 ? `CONTINUE (LVL ${lvl})` : 'PLAY',
+      chooseLevel: 'SELECT LEVEL',
+      disclaimer: 'Unofficial fictional fan game inspired by public facts. Not affiliated with Nvidia or Jensen Huang.',
+      selectTitle: 'THE TWELVE LABOURS',
+      back: '← BACK',
+      secHistory: 'I–VIII · PUBLIC HISTORY (1978–2026)',
+      secFiction: 'IX–XII · FICTION / "WHAT IF?"',
+      resetProgress: 'Reset Progress',
+      resetConfirm: 'Reset all progress and high scores?',
+      viewClosing: 'Reality Note & Credits',
+      daysLabel: 'THIRTY DAYS',
+      dayUnit: 'D',
+      factTag: 'REAL FACT',
+      fictionFactTag: 'PUBLIC FACT · IMAGINED SCENARIO',
+      fictionPill: 'FICTION · WHAT IF?',
+      howtoTag: 'HOW TO PLAY',
+      startLevel: 'START',
+      levelsBtn: 'LEVELS',
+      pauseTitle: 'PAUSED',
+      pauseAuto: 'Automatically paused while tab was hidden.',
+      pauseManual: 'Catch your breath — payroll is on hold.',
+      setDiff: 'Difficulty',
+      setMotion: 'Reduced motion',
+      setAudio: 'Sound & music',
+      setLang: 'Language',
+      resume: 'RESUME',
+      restartLevel: 'RESTART LEVEL',
+      quitMenu: 'QUIT TO MENU',
+      quitConfirmMsg: 'Quit this level? Current run progress will be lost.',
+      quitYes: 'YES, QUIT',
+      quitNo: 'CANCEL',
+      winBadge: 'CHAPTER CLEARED',
+      statDays: 'DAYS LEFT',
+      statStreak: 'BEST STREAK',
+      statScore: 'LEVEL SCORE',
+      nextLevel: 'NEXT LEVEL →',
+      toFinale: 'VIEW FINALE →',
+      replay: 'REPLAY',
+      loseBadge: '0 DAYS OF CASH LEFT',
+      loseTitle: 'BANKRUPTCY',
+      loseSub: 'Out of runway. Fortunately, a company thirty days from going out of business always gets another shot.',
+      retry: 'RETRY',
+      finaleFiction: 'IMAGINED ENDING · FICTION',
+      finaleTitle: 'ALL TWELVE LABOURS COMPLETE!',
+      finaleSub: 'The market bear is defeated. In this imagined ending, the leather jacket stands back in the spotlight.',
+      finScore: 'TOTAL SCORE',
+      finStars: 'STARS',
+      toClosing: 'BACK TO REALITY →',
+      closingEyebrow: 'WHAT IS REAL · WHAT IS IMAGINED',
+      closingTitle: 'The story is still unfolding',
+      closingP1: 'The first eight levels draw from well-documented public milestones in Jensen Huang\'s and Nvidia\'s history, from placing third in junior doubles at the 1978 U.S. Open table tennis championships to becoming the first $5 trillion company in October 2025.',
+      closingP2: 'The final four levels are pure fiction ("What if?") built around recent public facts: an independent committee of directors is conducting an investigation with outside counsel, three U.S. House committees want to hear from him, an open shareholder letter and a petition with over 170,000 signatures ask the ten directors to keep every option open, and after his departure the stock closed below $4 trillion. What happens next is not written yet — the real story is still unfolding.',
+      closingDisclaimer: 'Independent fictional fan game inspired by public facts. Not affiliated with Nvidia Corporation or Jensen Huang. No invented quotes.',
+      mainMenu: 'MAIN MENU',
+      on: 'ON',
+      off: 'OFF',
+      touchAction: 'ACTION',
+      touchJump: 'JUMP',
+      touchFire: 'FIRE',
+      touchCharge: 'CHARGE',
+      touchSpin: 'SPIN',
+      touchHit: 'STRIKE'
+    }
+  };
+
+  const LEVELS = [
+    {
+      id: 1,
+      year: { fr: '1978', en: '1978' },
+      title: { fr: 'Le Prodige', en: 'The Prodigy' },
+      fiction: false,
+      fact: {
+        fr: 'À 15 ans, Jensen Huang termine troisième en double junior à l\'U.S. Open de tennis de table.',
+        en: 'At age 15, Jensen Huang placed third in junior doubles at the U.S. Open table tennis championships.'
+      },
+      howto: {
+        fr: 'Renvoie la balle pour remplir la jauge d\'échange. La balle accélère à chaque retour !',
+        en: 'Return the ball to fill the rally gauge. The ball speeds up with every return!'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : ← → (ou souris) pour bouger, Espace au contact pour un smash.',
+        en: 'Keyboard / Mouse: ← → (or mouse) to move, Space on impact for a smash.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Glisse ton doigt sur la table pour déplacer la raquette, appuie sur FRAPPER pour smasher.',
+        en: 'Touch: Drag across the table to move your paddle, tap STRIKE to smash.'
+      },
+      note: {
+        fr: 'Réflexes, précision et sang-froid : sa première école de discipline avant le silicium.',
+        en: 'Reflexes, precision, and focus: his first school of discipline long before silicon.'
+      }
+    },
+    {
+      id: 2,
+      year: { fr: '1978–1993', en: '1978–1993' },
+      title: { fr: 'Le Rush', en: 'The Rush' },
+      fiction: false,
+      fact: {
+        fr: 'Il a travaillé comme plongeur puis serveur chez Denny\'s — la chaîne où Nvidia fut conçue en 1993 sur une banquette.',
+        en: 'He worked as a dishwasher and waiter at Denny\'s — the very chain where Nvidia was conceived in a booth in 1993.'
+      },
+      howto: {
+        fr: 'Attrape le bon article sur le tapis roulant et livre-le à la bonne banquette avant la fin de la patience.',
+        en: 'Grab the matching item off the conveyor belt and deliver it to the right booth before patience runs out.'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : ← → pour te placer, Espace (ou clic direct sur un plat puis une table) pour prendre/servir.',
+        en: 'Keyboard / Mouse: ← → to move, Space (or click an item then a booth) to pick up and serve.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Touche directement un article sur le tapis puis la banquette qui le demande !',
+        en: 'Touch: Tap an item on the belt directly, then tap the booth asking for it!'
+      },
+      note: {
+        fr: 'En avril 1993, autour d\'un café chez Denny\'s, Chris Malachowsky, Curtis Priem et Jensen Huang fondent Nvidia.',
+        en: 'In April 1993, over coffee at a Denny\'s booth, Chris Malachowsky, Curtis Priem, and Jensen Huang founded Nvidia.'
+      }
+    },
+    {
+      id: 3,
+      year: { fr: '1997', en: '1997' },
+      title: { fr: 'Trente Jours', en: 'Thirty Days' },
+      fiction: false,
+      fact: {
+        fr: 'En 1997, avec environ un mois de trésorerie restante, tout repose sur le succès de la puce RIVA 128.',
+        en: 'In 1997, with roughly one month of payroll left, everything rode on the RIVA 128 graphics chip.'
+      },
+      howto: {
+        fr: 'Frappe les bonnes puces vertes quand elles passent sous le laser. La trésorerie brûle en continu !',
+        en: 'Strike the good green dies as they rotate under the laser probe. Cash burns down continuously!'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : Espace ou Clic au bon moment. Attention au 3e wafer final à vitesse variable !',
+        en: 'Keyboard / Mouse: Press Space or Click at the exact moment. Watch out for the final variable-speed wafer!'
+      },
+      tipTouch: {
+        fr: 'Tactile : Touche n\'importe où sur l\'écran ou le bouton FRAPPER quand une puce verte passe sous le laser.',
+        en: 'Touch: Tap anywhere on screen or the STRIKE button when a green die passes under the laser.'
+      },
+      note: {
+        fr: 'La RIVA 128 s\'est vendue à plus d\'un million d\'unités en quatre mois, sauvant Nvidia de justesse.',
+        en: 'The RIVA 128 sold over a million units in four months, pulling Nvidia back from the brink.'
+      }
+    },
+    {
+      id: 4,
+      year: { fr: '1999–2012', en: '1999–2012' },
+      title: { fr: 'La Course', en: 'The Run' },
+      fiction: false,
+      fact: {
+        fr: 'Introduction en Bourse (1999), lancement du GeForce 256 (« premier GPU »), puis de CUDA en 2006.',
+        en: 'IPO in 1999, the GeForce 256 ("world\'s first GPU"), and the launch of CUDA in 2006.'
+      },
+      howto: {
+        fr: 'Saute (double saut inclus), baisse-toi sous les drones et collecte les puces jusqu\'en 2012. CUDA t\'offre un bouclier !',
+        en: 'Jump (with double jump), duck under high drones, and collect chips to 2012. CUDA grants a protective shield!'
+      },
+      tipKey: {
+        fr: 'Clavier : ↑ / Espace pour sauter (2× pour double saut), ↓ pour glisser au sol.',
+        en: 'Keyboard: ↑ / Space to jump (press twice to double-jump), ↓ to duck and slide.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Bouton SAUT (2× pour double saut) et maintien de ▼ pour glisser sous les obstacles hauts.',
+        en: 'Touch: Tap JUMP (twice to double-jump) and hold ▼ to slide under overhead hazards.'
+      },
+      note: {
+        fr: 'En ouvrant ses GPU au calcul généraliste avec CUDA dès 2006, Nvidia a préparé la révolution de l\'IA.',
+        en: 'By opening GPUs to general-purpose computing with CUDA in 2006, Nvidia laid the foundation for modern AI.'
+      }
+    },
+    {
+      id: 5,
+      year: { fr: '2012', en: '2012' },
+      title: { fr: 'En Parallèle', en: 'In Parallel' },
+      fiction: false,
+      fact: {
+        fr: 'En 2012, le réseau neuronal AlexNet remporte ImageNet en s\'entraînant sur seulement deux cartes graphiques grand public.',
+        en: 'In 2012, the AlexNet neural network won ImageNet after being trained on just two consumer gaming GPUs.'
+      },
+      howto: {
+        fr: 'Tous tes clones bougent ensemble ! Attrape les données bleues/vertes et évite les bugs rouges sur toutes les voies à la fois.',
+        en: 'All your clones move in lockstep! Catch blue/green data packets and dodge red glitches across every lane at once.'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : ← → (ou souris) pour décaler tous les clones simultanément.',
+        en: 'Keyboard / Mouse: ← → (or mouse) to shift all clones simultaneously.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Glisse horizontalement ou utilise ◀ ▶ pour piloter toutes tes copies en parallèle.',
+        en: 'Touch: Drag horizontally or use ◀ ▶ to steer all your parallel copies at once.'
+      },
+      note: {
+        fr: 'AlexNet a déclenché le « Big Bang » du deep learning — et prouvé la puissance du calcul massivement parallèle.',
+        en: 'AlexNet triggered the "Big Bang" of deep learning — proving the power of massively parallel GPU computing.'
+      }
+    },
+    {
+      id: 6,
+      year: { fr: '2022–2023', en: '2022–2023' },
+      title: { fr: 'Sous la Ligne', en: 'Under the Line' },
+      fiction: false,
+      fact: {
+        fr: 'Washington plafonne la puissance des puces exportées vers la Chine ; Nvidia conçoit des versions juste sous la limite, abaissée à nouveau en 2023.',
+        en: 'Washington capped the performance of chips sold to China; Nvidia engineered chips just beneath the cap, which dropped again in 2023.'
+      },
+      howto: {
+        fr: 'Maintiens pour charger la puissance et relâche dans la zone verte juste sous la ligne rouge. Termine par 3 parfaits de suite !',
+        en: 'Hold to charge chip power and release inside the green zone just under the red line. Finish with 3 consecutive hits!'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : Maintiens Espace ou le bouton souris, puis relâche avant la ligne rouge.',
+        en: 'Keyboard / Mouse: Hold Space or mouse button, then release just before the red cap.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Maintiens ton doigt sur l\'écran (ou CHARGER) et relâche juste sous la limite.',
+        en: 'Touch: Press and hold the screen (or CHARGE) and release right beneath the cap.'
+      },
+      note: {
+        fr: 'De l\'A800 et H800 jusqu\'au H20 : un exercice d\'équilibriste réglementaire au millimètre près.',
+        en: 'From the A800 and H800 to the H20: precision engineering right up against shifting export thresholds.'
+      }
+    },
+    {
+      id: 7,
+      year: { fr: '2023', en: '2023' },
+      title: { fr: 'La Pénurie', en: 'The Shortage' },
+      fiction: false,
+      fact: {
+        fr: 'En 2023, Nvidia franchit les 1 000 milliards de dollars de capitalisation tandis que toute l\'industrie s\'arrache ses GPU.',
+        en: 'In 2023, Nvidia crossed $1 trillion in market value as the entire tech industry scrambled for its AI chips.'
+      },
+      howto: {
+        fr: 'Vise les commandes qui défilent avec un stock limité. Chaque tir raté gaspille une puce et coûte des jours !',
+        en: 'Aim at moving demand targets with limited chip stock. Every missed shot wastes precious supply and costs days!'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : Vise à la souris + Clic (ou ← → et Espace) en anticipant le mouvement.',
+        en: 'Keyboard / Mouse: Aim with mouse + Click (or ← → and Space), leading your shots.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Touche directement l\'endroit vers lequel tirer (anticipe la trajectoire des cibles).',
+        en: 'Touch: Tap directly where you want to launch a chip (lead moving targets).'
+      },
+      note: {
+        fr: 'En pleine pénurie mondiale de H100, la précision d\'allocation valait autant que la vitesse de production.',
+        en: 'During the global H100 shortage, careful allocation mattered just as much as raw production speed.'
+      }
+    },
+    {
+      id: 8,
+      year: { fr: '2025–2026', en: '2025–2026' },
+      title: { fr: 'Les Assiettes', en: 'The Plates' },
+      fiction: false,
+      fact: {
+        fr: 'En octobre 2025, Nvidia devient la première entreprise au monde valorisée à 5 000 milliards de dollars.',
+        en: 'In October 2025, Nvidia became the first company in history to reach a $5 trillion valuation.'
+      },
+      howto: {
+        fr: 'Fais tourner tous les piliers en même temps ! Cours vers ceux qui vacillent avant qu\'une assiette ne tombe.',
+        en: 'Keep every pillar spinning at once! Rush to any wobbling pole before a plate drops.'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : ← → pour courir, Espace pour relancer (ou clique directement sur un pilier pour y foncer !).',
+        en: 'Keyboard / Mouse: ← → to run, Space to spin (or click any pole directly to sprint over and spin it!).'
+      },
+      tipTouch: {
+        fr: 'Tactile : Touche directement le pilier qui vacille pour y courir et le relancer !',
+        en: 'Touch: Tap any wobbling pole directly to sprint over and spin it back up!'
+      },
+      note: {
+        fr: 'À 5 000 milliards de dollars, maintenir chaque front — IA, cloud, auto, robotique — exige une vigilance permanente.',
+        en: 'At $5 trillion, keeping every front — AI, cloud, auto, robotics — spinning simultaneously takes constant energy.'
+      }
+    },
+    {
+      id: 9,
+      year: { fr: 'FICTION · IX', en: 'FICTION · IX' },
+      title: { fr: 'Pleine Lumière', en: 'Full Light' },
+      fiction: true,
+      fact: {
+        fr: 'Fait public : un comité indépendant d\'administrateurs mène une enquête avec un conseil externe. Tout le reste de ce niveau est imaginé.',
+        en: 'Public fact: an independent committee of directors is conducting an investigation with outside counsel. Everything else here is imagined.'
+      },
+      howto: {
+        fr: 'Éclaire la salle en te déplaçant et évite les rumeurs. Puis garde le boss Rumeur dans ton faisceau sans te faire toucher !',
+        en: 'Illuminate the dark room as you move while dodging rumors. Then keep the giant Rumor boss inside your light without being touched!'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : ZQSD / WASD / Flèches (ou guide à la souris) pour te déplacer dans l\'arène.',
+        en: 'Keyboard / Mouse: WASD / Arrows (or guide with mouse) to move freely around the arena.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Maintiens et glisse ton doigt sur l\'arène pour guider Jensen et son projecteur.',
+        en: 'Touch: Press and drag anywhere on the arena to steer Jensen and his spotlight.'
+      },
+      note: {
+        fr: 'Chapitre imaginé : dissiper les zones d\'ombre demande autant de constance que de sang-froid.',
+        en: 'Imagined chapter: clearing the shadows takes as much steadiness as composure.'
+      }
+    },
+    {
+      id: 10,
+      year: { fr: 'FICTION · X', en: 'FICTION · X' },
+      title: { fr: 'Les Questions', en: 'The Questions' },
+      fiction: true,
+      fact: {
+        fr: 'Fait public : trois commissions de la Chambre des représentants américaine souhaitent l\'entendre. Le déroulement ci-dessous est imaginé.',
+        en: 'Public fact: three U.S. House committees want to hear from him. The hearing sequence below is imagined.'
+      },
+      howto: {
+        fr: 'Trois voies, trois commissions. Réponds à chaque question dans la bonne voie au moment où elle franchit la ligne !',
+        en: 'Three lanes, three committees. Answer each question in the matching lane right as it crosses the strike line!'
+      },
+      tipKey: {
+        fr: 'Clavier : 1 / 2 / 3 (ou ← / ↓ / →, ou A / S / D) pour répondre sur chaque voie.',
+        en: 'Keyboard: 1 / 2 / 3 (or ← / ↓ / →, or A / S / D) to answer each committee lane.'
+      },
+      tipTouch: {
+        fr: 'Tactile : Appuie sur les boutons I, II, III en bas au moment où la carte atteint la ligne lumineuse.',
+        en: 'Touch: Tap buttons I, II, III at the bottom right as each question card hits the glowing line.'
+      },
+      note: {
+        fr: 'Chapitre imaginé : répondre en rythme sur trois fronts sans perdre le fil.',
+        en: 'Imagined chapter: answering three parallel fronts in rhythm without missing a beat.'
+      }
+    },
+    {
+      id: 11,
+      year: { fr: 'FICTION · XI', en: 'FICTION · XI' },
+      title: { fr: 'Le Conseil', en: 'The Board' },
+      fiction: true,
+      fact: {
+        fr: 'Fait public : dix administrateurs ; une lettre ouverte d\'actionnaires et une pétition de plus de 170 000 signatures leur demandent de garder toutes les options ouvertes.',
+        en: 'Public fact: ten directors; an open shareholder letter and a petition with over 170,000 signatures ask them to keep every option open.'
+      },
+      howto: {
+        fr: 'Fais rebondir la lettre ouverte sur les 10 sièges du conseil. Maintiens une majorité de 6 votes simultanés !',
+        en: 'Bounce the open letter up into the 10 board seats. Hold a majority of 6 active votes at the same time!'
+      },
+      tipKey: {
+        fr: 'Clavier / Souris : ← → ou souris pour déplacer la raquette. Les votes expirent, garde le rythme !',
+        en: 'Keyboard / Mouse: ← → or mouse to move the paddle. Votes fade over time, so keep the rallies going!'
+      },
+      tipTouch: {
+        fr: 'Tactile : Glisse ton doigt sur l\'écran pour contrôler la raquette et viser les sièges.',
+        en: 'Touch: Drag across the screen to steer the paddle and aim for the board seats.'
+      },
+      note: {
+        fr: 'Chapitre imaginé : obtenir une majorité est une chose, la maintenir en même temps en est une autre.',
+        en: 'Imagined chapter: winning a vote is one thing — holding a majority simultaneously is another.'
+      }
+    },
+    {
+      id: 12,
+      year: { fr: 'FICTION · XII', en: 'FICTION · XII' },
+      title: { fr: 'L\'Ours', en: 'The Bear' },
+      fiction: true,
+      fact: {
+        fr: 'Fait public : après son départ, l\'action a clôturé sous les 4 000 milliards de dollars. Ce combat final en 5 phases est purement imaginé.',
+        en: 'Public fact: after his departure, the stock closed below $4 trillion. This five-phase boss fight is purely imagined.'
+      },
+      howto: {
+        fr: 'Tu tires automatiquement ! Esquive, saute par-dessus les vagues rouges et attrape les bougies vertes pour te soigner et booster ton tir.',
+        en: 'You fire automatically! Dodge, jump over ground shockwaves, and grab green candles to heal and power up.'
+      },
+      tipKey: {
+        fr: 'Clavier : ← → (ou A/D) pour esquiver, ↑ / Espace pour sauter (double saut actif).',
+        en: 'Keyboard: ← → (or A/D) to dodge, ↑ / Space to jump (double jump enabled).'
+      },
+      tipTouch: {
+        fr: 'Tactile : ◀ ▶ pour esquiver et SAUT pour franchir les ondes de choc de l\'Ours.',
+        en: 'Touch: ◀ ▶ to dodge and JUMP to leap over the Bear\'s ground shockwaves.'
+      },
+      note: {
+        fr: 'Fin imaginée : cinq phases d\'un marché baissier surmontées à la force du réflexe.',
+        en: 'Imagined ending: five phases of a relentless market bear overcome by sheer reflex.'
+      }
+    }
+  ];
+
+  global.I18N = {
+    lang: 'fr',
+    UI,
+    LEVELS,
+    t(key, ...args) {
+      const pack = UI[this.lang] || UI.fr;
+      const val = pack[key];
+      if (typeof val === 'function') return val(...args);
+      return val !== undefined ? val : key;
+    },
+    level(id) {
+      return LEVELS[id - 1];
+    }
+  };
+})(window);
+
+
+// ===== audio.js =====
+/* Procedural Web Audio SFX + Adaptive Chiptune/Synthwave Music */
+(function (global) {
+  'use strict';
+
+  class SoundEngine {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.musicTimer = null;
+      this.step = 0;
+      this.mode = 'menu'; // 'menu' | 'arcade' | 'fiction' | 'boss' | 'finale'
+      this.daysRatio = 1.0; // 1.0 = 30 days, 0.0 = 0 days
+      this.isPlayingMusic = false;
+    }
+
+    ensure() {
+      if (this.muted) return null;
+      if (!this.ctx) {
+        const AC = global.AudioContext || global.webkitAudioContext;
+        if (!AC) return null;
+        this.ctx = new AC();
+      }
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      return this.ctx;
+    }
+
+    setMuted(m) {
+      this.muted = !!m;
+      if (this.muted) {
+        this.stopMusic();
+      } else if (this.isPlayingMusic) {
+        this.startMusic(this.mode);
+      }
+    }
+
+    setDaysRatio(ratio) {
+      this.daysRatio = Math.max(0, Math.min(1, ratio));
+    }
+
+    tone(freq, dur, type = 'square', gainVal = 0.08, slideTo = null, delay = 0) {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), now + dur);
+      }
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(gainVal, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + dur + 0.02);
+    }
+
+    noise(dur = 0.12, gainVal = 0.09, filterFreq = 900) {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const bufSize = Math.floor(ctx.sampleRate * dur);
+      const buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = filterFreq;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(now);
+      src.stop(now + dur + 0.02);
+    }
+
+    // Named SFX
+    sfxHit() { this.tone(420, 0.07, 'square', 0.08, 660); }
+    sfxSmash() { this.tone(520, 0.12, 'sawtooth', 0.1, 980); this.noise(0.08, 0.06, 1800); }
+    sfxGood() {
+      this.tone(587.33, 0.08, 'triangle', 0.1);
+      this.tone(880, 0.12, 'triangle', 0.1, null, 0.06);
+    }
+    sfxPerfect() {
+      this.tone(659.25, 0.08, 'triangle', 0.1);
+      this.tone(880, 0.08, 'triangle', 0.1, null, 0.06);
+      this.tone(1318.5, 0.16, 'sine', 0.1, null, 0.12);
+    }
+    sfxBad() {
+      this.tone(190, 0.16, 'sawtooth', 0.11, 95);
+      this.noise(0.14, 0.08, 420);
+    }
+    sfxJump() { this.tone(260, 0.11, 'square', 0.07, 560); }
+    sfxShoot() { this.tone(760, 0.06, 'square', 0.045, 300); }
+    sfxSpin() { this.tone(330, 0.1, 'triangle', 0.08, 740); }
+    sfxPhase() {
+      this.tone(220, 0.12, 'sawtooth', 0.11, 440);
+      this.tone(330, 0.18, 'sawtooth', 0.11, 660, 0.1);
+      this.noise(0.22, 0.1, 600);
+    }
+    sfxWin() {
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((n, i) => this.tone(n, 0.16, 'triangle', 0.11, null, i * 0.09));
+    }
+    sfxLose() {
+      const notes = [349.23, 311.13, 277.18, 196.0];
+      notes.forEach((n, i) => this.tone(n, 0.22, 'sawtooth', 0.09, null, i * 0.13));
+    }
+    sfxFirework() {
+      this.noise(0.24, 0.09, 1400);
+      this.tone(920, 0.15, 'sine', 0.06, 360, 0.04);
+    }
+    sfxClick() { this.tone(620, 0.04, 'triangle', 0.05); }
+
+    startMusic(mode = 'arcade') {
+      this.mode = mode;
+      this.isPlayingMusic = true;
+      this.stopMusicTimer();
+      if (this.muted) return;
+
+      const tick = () => {
+        if (this.muted || !this.isPlayingMusic) return;
+        const urgent = this.daysRatio <= 0.34; // <= 10 days!
+        const ctx = this.ensure();
+        if (ctx) {
+          this._playMusicStep(this.step++, urgent);
+        }
+        // Tempo speeds up dynamically as days run low!
+        let baseMs = this.mode === 'boss' ? 145 : this.mode === 'fiction' ? 185 : this.mode === 'finale' ? 160 : 170;
+        if (urgent && this.mode !== 'finale' && this.mode !== 'menu') {
+          baseMs = Math.max(105, Math.round(baseMs * (0.74 + this.daysRatio * 0.55)));
+        }
+        this.musicTimer = setTimeout(tick, baseMs);
+      };
+      this.musicTimer = setTimeout(tick, 120);
+    }
+
+    _playMusicStep(s, urgent) {
+      const i = s % 16;
+      if (this.mode === 'arcade') {
+        const bass = urgent
+          ? [110, 110, 130.8, 110, 146.8, 110, 130.8, 123.5, 110, 110, 130.8, 110, 164.8, 146.8, 130.8, 123.5]
+          : [130.8, 130.8, 164.8, 196, 174.6, 174.6, 196, 164.8, 146.8, 146.8, 174.6, 220, 196, 196, 164.8, 146.8];
+        const lead = urgent
+          ? [440, 0, 523.3, 0, 587.3, 523.3, 440, 0, 659.3, 0, 587.3, 523.3, 493.9, 0, 440, 0]
+          : [523.3, 0, 659.3, 0, 784, 659.3, 523.3, 0, 587.3, 0, 698.5, 0, 784, 0, 659.3, 0];
+        this.tone(bass[i], 0.11, 'triangle', 0.045);
+        if (lead[i]) this.tone(lead[i], 0.09, 'square', urgent ? 0.032 : 0.025);
+        if (urgent && i % 4 === 0) this.tone(75, 0.08, 'sine', 0.08, 45); // heartbeat kick
+      } else if (this.mode === 'fiction') {
+        const bass = [98, 0, 98, 116.5, 130.8, 0, 116.5, 98, 87.3, 0, 87.3, 98, 116.5, 0, 110, 98];
+        const arp = [392, 466.2, 587.3, 466.2, 523.3, 466.2, 392, 0, 349.2, 440, 523.3, 440, 466.2, 440, 392, 0];
+        if (bass[i]) this.tone(bass[i], 0.14, 'sawtooth', 0.032);
+        if (arp[i]) this.tone(arp[i], 0.09, 'sine', 0.035);
+        if (urgent && i % 4 === 0) this.tone(70, 0.09, 'sine', 0.085, 42);
+      } else if (this.mode === 'boss') {
+        const bass = [82.4, 82.4, 98, 82.4, 110, 82.4, 123.5, 110, 82.4, 82.4, 98, 82.4, 146.8, 130.8, 123.5, 98];
+        const lead = [329.6, 392, 493.9, 392, 440, 523.3, 659.3, 523.3, 329.6, 392, 493.9, 587.3, 659.3, 587.3, 493.9, 392];
+        this.tone(bass[i], 0.1, 'sawtooth', 0.048);
+        this.tone(lead[i], 0.08, 'square', 0.03);
+        if (i % 2 === 0) this.noise(0.03, 0.025, 2400);
+      } else if (this.mode === 'finale') {
+        const chord = [523.3, 659.3, 784, 1046.5, 880, 1046.5, 784, 659.3];
+        this.tone(chord[i % 8], 0.14, 'triangle', 0.045);
+        if (i % 4 === 0) this.tone(261.6, 0.2, 'sine', 0.05);
+      }
+    }
+
+    stopMusicTimer() {
+      if (this.musicTimer) {
+        clearTimeout(this.musicTimer);
+        this.musicTimer = null;
+      }
+    }
+
+    stopMusic() {
+      this.isPlayingMusic = false;
+      this.stopMusicTimer();
+    }
+  }
+
+  global.AUDIO = new SoundEngine();
+})(window);
+
+
+// ===== sprites.js =====
+/* Pixel-exact Sprite Loader & Renderer for Jensen Huang Sprite Sheet */
+(function (global) {
+  'use strict';
+
+  const SPRITE_PATH = '../assets/Jensen Huang Pixel Sprite Sheet.png';
+
+  // Measured exact bounding boxes from 2172 x 724 PNG
+  const FRAMES = {
+    portrait: { x: 18, y: 20, w: 464, h: 576 },
+    // Row 0: 8-directional turnaround (0:front, 1:front-right, 2:right, 3:back-right, 4:back, 5:back-left, 6:left, 7:front-left)
+    dir: [
+      { x: 538, y: 16, w: 182, h: 372 },
+      { x: 778, y: 16, w: 160, h: 372 },
+      { x: 1014, y: 18, w: 132, h: 368 },
+      { x: 1194, y: 20, w: 150, h: 366 },
+      { x: 1408, y: 16, w: 172, h: 372 },
+      { x: 1644, y: 18, w: 148, h: 370 },
+      { x: 1832, y: 18, w: 128, h: 370 },
+      { x: 2000, y: 16, w: 150, h: 372 }
+    ],
+    // Row 1: 8-frame right-facing walk/run cycle
+    walk: [
+      { x: 574, y: 442, w: 114, h: 270 },
+      { x: 754, y: 442, w: 152, h: 270 },
+      { x: 968, y: 442, w: 146, h: 270 },
+      { x: 1176, y: 442, w: 138, h: 270 },
+      { x: 1394, y: 440, w: 116, h: 272 },
+      { x: 1592, y: 438, w: 110, h: 274 },
+      { x: 1782, y: 438, w: 114, h: 274 },
+      { x: 1984, y: 440, w: 114, h: 272 }
+    ]
+  };
+
+  class SpriteManager {
+    constructor() {
+      this.img = new Image();
+      this.loaded = false;
+      this.failed = false;
+      this.onLoadCallbacks = [];
+      this.img.onload = () => {
+        this.loaded = true;
+        this.onLoadCallbacks.forEach((cb) => cb());
+        this.onLoadCallbacks = [];
+      };
+      this.img.onerror = () => {
+        this.failed = true;
+      };
+      this.img.src = SPRITE_PATH;
+    }
+
+    whenReady(cb) {
+      if (this.loaded) cb();
+      else this.onLoadCallbacks.push(cb);
+    }
+
+    drawPortrait(ctx, dx, dy, dw, dh) {
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      if (this.loaded) {
+        const f = FRAMES.portrait;
+        ctx.drawImage(this.img, f.x, f.y, f.w, f.h, dx, dy, dw, dh);
+      } else {
+        this._drawFallback(ctx, dx + dw / 2, dy + dh, dh * 0.9);
+      }
+      ctx.restore();
+    }
+
+    /**
+     * Draw Jensen standing/facing a direction (0..7) anchored at bottom-center (cx, bottomY)
+     */
+    drawDir(ctx, dirIndex, cx, bottomY, targetHeight, flipX = false, alpha = 1) {
+      const idx = ((dirIndex % 8) + 8) % 8;
+      const f = FRAMES.dir[idx];
+      this._drawFrame(ctx, f, cx, bottomY, targetHeight, flipX, alpha);
+    }
+
+    /**
+     * Draw Jensen walking/running (frame 0..7) anchored at bottom-center (cx, bottomY)
+     */
+    drawWalk(ctx, frameIndex, cx, bottomY, targetHeight, facingLeft = false, alpha = 1) {
+      const idx = ((Math.floor(frameIndex) % 8) + 8) % 8;
+      const f = FRAMES.walk[idx];
+      this._drawFrame(ctx, f, cx, bottomY, targetHeight, facingLeft, alpha);
+    }
+
+    _drawFrame(ctx, f, cx, bottomY, targetHeight, flipX, alpha) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.imageSmoothingEnabled = false;
+      if (this.loaded) {
+        const scale = targetHeight / f.h;
+        const dw = f.w * scale;
+        const dh = targetHeight;
+        ctx.translate(cx, bottomY);
+        if (flipX) ctx.scale(-1, 1);
+        ctx.drawImage(this.img, f.x, f.y, f.w, f.h, -dw / 2, -dh, dw, dh);
+      } else {
+        this._drawFallback(ctx, cx, bottomY, targetHeight);
+      }
+      ctx.restore();
+    }
+
+    _drawFallback(ctx, cx, bottomY, h) {
+      const w = h * 0.45;
+      // Leather jacket body
+      ctx.fillStyle = '#1b1f26';
+      ctx.fillRect(cx - w / 2, bottomY - h * 0.62, w, h * 0.42);
+      // Green emblem
+      ctx.fillStyle = '#76b900';
+      ctx.fillRect(cx + w * 0.1, bottomY - h * 0.52, w * 0.22, w * 0.18);
+      // Legs
+      ctx.fillStyle = '#111419';
+      ctx.fillRect(cx - w * 0.35, bottomY - h * 0.22, w * 0.28, h * 0.22);
+      ctx.fillRect(cx + w * 0.07, bottomY - h * 0.22, w * 0.28, h * 0.22);
+      // Head
+      ctx.fillStyle = '#f2b885';
+      ctx.beginPath();
+      ctx.arc(cx, bottomY - h * 0.78, w * 0.44, 0, Math.PI * 2);
+      ctx.fill();
+      // Silver hair
+      ctx.fillStyle = '#b4bcc8';
+      ctx.beginPath();
+      ctx.arc(cx, bottomY - h * 0.84, w * 0.45, Math.PI, Math.PI * 2);
+      ctx.fill();
+      // Glasses
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx - w * 0.32, bottomY - h * 0.82, w * 0.26, w * 0.16);
+      ctx.strokeRect(cx + w * 0.06, bottomY - h * 0.82, w * 0.26, w * 0.16);
+    }
+  }
+
+  global.SPRITES = new SpriteManager();
+})(window);
+
+
+// ===== engine.js =====
+/* Core Game Engine: Thirty Days Spine, Storage, Input, Juice, Loop */
+(function (global) {
+  'use strict';
+
+  const STORAGE_KEY = 'thirty_days_jensen_v1';
+  const LOGICAL_W = 960;
+  const LOGICAL_H = 540;
+
+  const DIFF_CONFIG = {
+    easy: { dmgMult: 0.7, speedMult: 0.85, windowMult: 1.22, healMult: 1.25 },
+    medium: { dmgMult: 1.0, speedMult: 1.0, windowMult: 1.0, healMult: 1.0 },
+    hard: { dmgMult: 1.35, speedMult: 1.18, windowMult: 0.84, healMult: 0.8 }
+  };
+
+  function defaultSave() {
+    return {
+      unlocked: 1,
+      stars: {},       // { "1": 3, ... }
+      bestScores: {},  // { "1": 4200, ... }
+      totalBest: 0,
+      lang: 'fr',
+      difficulty: 'medium',
+      muted: false,
+      reducedMotion: null // null = follow OS media query
+    };
+  }
+
+  function loadSave() {
+    try {
+      const raw = global.localStorage && global.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultSave();
+      const parsed = JSON.parse(raw);
+      return Object.assign(defaultSave(), parsed);
+    } catch (_) {
+      return defaultSave();
+    }
+  }
+
+  function writeSave(data) {
+    try {
+      if (global.localStorage) {
+        global.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+    } catch (_) {
+      // Storage unavailable (private mode / sandbox) — silently keep in-memory
+    }
+  }
+
+  class GameEngine {
+    constructor() {
+      this.W = LOGICAL_W;
+      this.H = LOGICAL_H;
+      this.canvas = null;
+      this.ctx = null;
+
+      this.save = loadSave();
+      this.godMode = false;
+      this.inputMode = ('ontouchstart' in global || navigator.maxTouchPoints > 0) ? 'touch' : 'keyboard';
+
+      // Runtime state
+      this.running = false;
+      this.paused = false;
+      this.activeLevelId = 1;
+      this.activeLevel = null;
+      this.days = 30;
+      this.score = 0;
+      this.streak = 0;
+      this.bestStreak = 0;
+      this.progress = 0; // 0..1
+      this.progressLabel = '';
+      this.elapsed = 0;
+      this.hitstop = 0;
+      this.shakeTime = 0;
+      this.shakeMag = 0;
+      this.flashColor = null;
+      this.flashAlpha = 0;
+
+      // Juice arrays
+      this.particles = [];
+      this.popups = [];
+
+      // Input state
+      this.keys = {};
+      this.justPressed = {};
+      this.pointer = {
+        active: false,
+        down: false,
+        justDown: false,
+        justUp: false,
+        x: LOGICAL_W / 2,
+        y: LOGICAL_H / 2
+      };
+
+      // Konami sequence
+      this._konamiIdx = 0;
+      this._konamiSeq = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+
+      // Callbacks wired by main.js
+      this.onWin = null;
+      this.onLose = null;
+      this.onHudUpdate = null;
+      this.onAutoPause = null;
+      this.onGodModeToggle = null;
+      this.onInputModeChange = null;
+
+      this._lastTs = 0;
+      this._raf = null;
+      this._levelFactories = {};
+    }
+
+    registerLevel(id, factoryFn) {
+      this._levelFactories[id] = factoryFn;
+    }
+
+    init(canvas) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this._applyReducedMotionClass();
+      this._bindInputs();
+    }
+
+    isReducedMotion() {
+      if (this.save.reducedMotion !== null) return !!this.save.reducedMotion;
+      return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    toggleReducedMotion() {
+      const next = !this.isReducedMotion();
+      this.save.reducedMotion = next;
+      writeSave(this.save);
+      this._applyReducedMotionClass();
+      return next;
+    }
+
+    _applyReducedMotionClass() {
+      document.documentElement.classList.toggle('reduced-motion', this.isReducedMotion());
+    }
+
+    get diff() {
+      return DIFF_CONFIG[this.save.difficulty] || DIFF_CONFIG.medium;
+    }
+
+    setDifficulty(d) {
+      if (!DIFF_CONFIG[d]) return;
+      this.save.difficulty = d;
+      writeSave(this.save);
+    }
+
+    setLanguage(lang) {
+      this.save.lang = lang === 'en' ? 'en' : 'fr';
+      global.I18N.lang = this.save.lang;
+      writeSave(this.save);
+    }
+
+    setMuted(m) {
+      this.save.muted = !!m;
+      global.AUDIO.setMuted(this.save.muted);
+      writeSave(this.save);
+    }
+
+    toggleGodMode() {
+      this.godMode = !this.godMode;
+      if (this.godMode) {
+        this.save.unlocked = 12;
+        writeSave(this.save);
+      }
+      if (this.onGodModeToggle) this.onGodModeToggle(this.godMode);
+    }
+
+    resetProgress() {
+      const lang = this.save.lang;
+      const muted = this.save.muted;
+      const rm = this.save.reducedMotion;
+      this.save = defaultSave();
+      this.save.lang = lang;
+      this.save.muted = muted;
+      this.save.reducedMotion = rm;
+      this.godMode = false;
+      writeSave(this.save);
+    }
+
+    getTotalStars() {
+      let sum = 0;
+      for (let i = 1; i <= 12; i++) sum += (this.save.stars[i] || 0);
+      return sum;
+    }
+
+    getTotalScore() {
+      let sum = 0;
+      for (let i = 1; i <= 12; i++) sum += (this.save.bestScores[i] || 0);
+      return Math.max(sum, this.save.totalBest || 0);
+    }
+
+    startLevel(id) {
+      const factory = this._levelFactories[id];
+      if (!factory) return;
+      this.activeLevelId = id;
+      this.days = 30;
+      this.score = 0;
+      this.streak = 0;
+      this.bestStreak = 0;
+      this.progress = 0;
+      this.progressLabel = '';
+      this.elapsed = 0;
+      this.hitstop = 0;
+      this.shakeTime = 0;
+      this.flashAlpha = 0;
+      this.particles = [];
+      this.popups = [];
+      this.paused = false;
+      this.running = true;
+      this.justPressed = {};
+      this.pointer.justDown = false;
+      this.pointer.justUp = false;
+
+      this.activeLevel = factory(this);
+      if (this.activeLevel.init) this.activeLevel.init();
+
+      global.AUDIO.setDaysRatio(1);
+      const musicMode = id === 12 ? 'boss' : id >= 9 ? 'fiction' : 'arcade';
+      global.AUDIO.startMusic(musicMode);
+
+      if (this.onHudUpdate) this.onHudUpdate();
+      this._startLoop();
+    }
+
+    stopLevel() {
+      this.running = false;
+      this.paused = false;
+      this.activeLevel = null;
+      global.AUDIO.stopMusic();
+      if (this._raf) {
+        cancelAnimationFrame(this._raf);
+        this._raf = null;
+      }
+    }
+
+    setPaused(p) {
+      if (!this.running) return;
+      this.paused = !!p;
+      if (this.paused) {
+        global.AUDIO.stopMusic();
+      } else {
+        const musicMode = this.activeLevelId === 12 ? 'boss' : this.activeLevelId >= 9 ? 'fiction' : 'arcade';
+        global.AUDIO.startMusic(musicMode);
+        this._lastTs = performance.now();
+      }
+    }
+
+    // Core gameplay API used by all 12 levels
+    addScore(basePoints, label = null, x = null, y = null, color = '#a6ff00') {
+      const mult = 1 + Math.min(3, Math.floor(this.streak / 3));
+      const pts = Math.round(basePoints * mult);
+      this.score += pts;
+      if (label || x !== null) {
+        this.popup(label || `+${pts}`, x ?? this.W / 2, y ?? 120, color);
+      }
+    }
+
+    addStreak(n = 1) {
+      this.streak += n;
+      if (this.streak > this.bestStreak) this.bestStreak = this.streak;
+      if (this.streak > 0 && this.streak % 5 === 0) {
+        this.heal(0.8, false);
+        this.popup(`STREAK ×${this.streak}!`, this.W / 2, 92, '#f5b942');
+      }
+    }
+
+    resetStreak() {
+      this.streak = 0;
+    }
+
+    damage(amount, x = null, y = null, silent = false) {
+      if (!this.running) return;
+      const scaled = amount * this.diff.dmgMult;
+      if (!this.godMode) {
+        this.days = Math.max(0, this.days - scaled);
+      }
+      this.resetStreak();
+      global.AUDIO.setDaysRatio(this.days / 30);
+      if (!silent) {
+        global.AUDIO.sfxBad();
+        this.shake(0.22, 8);
+        this.flash('#ff2e4c', 0.25);
+        this.popup(`-${scaled.toFixed(1)} ${global.I18N.t('dayUnit')}`, x ?? this.W / 2, y ?? 150, '#ff4d6d');
+      }
+      if (this.days <= 0 && !this.godMode) {
+        this._triggerLose();
+      }
+    }
+
+    burnDays(amount) {
+      if (!this.running || this.godMode) return;
+      this.days = Math.max(0, this.days - amount * this.diff.dmgMult);
+      global.AUDIO.setDaysRatio(this.days / 30);
+      if (this.days <= 0) this._triggerLose();
+    }
+
+    heal(amount, showPopup = true, x = null, y = null) {
+      if (!this.running) return;
+      const scaled = amount * this.diff.healMult;
+      const prev = this.days;
+      this.days = Math.min(30, this.days + scaled);
+      global.AUDIO.setDaysRatio(this.days / 30);
+      if (showPopup && this.days > prev + 0.05) {
+        this.popup(`+${(this.days - prev).toFixed(1)} ${global.I18N.t('dayUnit')}`, x ?? this.W / 2, y ?? 130, '#a6ff00');
+      }
+    }
+
+    setProgress(p, customLabel = '') {
+      this.progress = Math.max(0, Math.min(1, p));
+      this.progressLabel = customLabel;
+    }
+
+    winLevel() {
+      if (!this.running) return;
+      this.running = false;
+      global.AUDIO.stopMusic();
+      global.AUDIO.sfxWin();
+
+      const daysBonus = Math.round(this.days * 100);
+      const streakBonus = this.bestStreak * 50;
+      const finalScore = this.score + daysBonus + streakBonus;
+      const stars = this.days >= 22 ? 3 : this.days >= 12 ? 2 : 1;
+
+      const id = this.activeLevelId;
+      this.save.stars[id] = Math.max(this.save.stars[id] || 0, stars);
+      this.save.bestScores[id] = Math.max(this.save.bestScores[id] || 0, finalScore);
+      if (id < 12 && this.save.unlocked <= id) {
+        this.save.unlocked = id + 1;
+      }
+      const sumBest = Object.values(this.save.bestScores).reduce((a, b) => a + b, 0);
+      this.save.totalBest = Math.max(this.save.totalBest || 0, sumBest);
+      writeSave(this.save);
+
+      if (this.onWin) {
+        this.onWin({
+          id,
+          stars,
+          daysLeft: this.days,
+          bestStreak: this.bestStreak,
+          score: finalScore
+        });
+      }
+    }
+
+    _triggerLose() {
+      this.running = false;
+      global.AUDIO.stopMusic();
+      global.AUDIO.sfxLose();
+      if (this.onLose) this.onLose(this.activeLevelId);
+    }
+
+    // Juice helpers
+    shake(dur = 0.16, mag = 6) {
+      if (this.isReducedMotion()) return;
+      this.shakeTime = Math.max(this.shakeTime, dur);
+      this.shakeMag = Math.max(this.shakeMag, mag);
+    }
+
+    flash(color, alpha = 0.25) {
+      if (this.isReducedMotion()) return;
+      this.flashColor = color;
+      this.flashAlpha = alpha;
+    }
+
+    freeze(sec = 0.05) {
+      if (this.isReducedMotion()) return;
+      this.hitstop = Math.max(this.hitstop, sec);
+    }
+
+    burst(x, y, color = '#a6ff00', count = 14, speed = 180) {
+      const n = this.isReducedMotion() ? Math.min(4, count) : count;
+      for (let i = 0; i < n; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = speed * (0.35 + Math.random() * 0.85);
+        this.particles.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 30,
+          life: 0.35 + Math.random() * 0.35,
+          maxLife: 0.7,
+          size: 3 + Math.random() * 4,
+          color
+        });
+      }
+    }
+
+    popup(text, x, y, color = '#ffffff') {
+      this.popups.push({ text, x, y, color, life: 0.9, maxLife: 0.9 });
+    }
+
+    // Input helpers
+    isDown(action) {
+      return !!this.keys[action];
+    }
+
+    wasPressed(action) {
+      return !!this.justPressed[action];
+    }
+
+    setVirtualKey(action, down) {
+      if (down && !this.keys[action]) this.justPressed[action] = true;
+      this.keys[action] = down;
+      this._setInputMode('touch');
+    }
+
+    _setInputMode(mode) {
+      if (this.inputMode !== mode) {
+        this.inputMode = mode;
+        if (this.onInputModeChange) this.onInputModeChange(mode);
+      }
+    }
+
+    _bindInputs() {
+      const mapKey = (code) => {
+        if (code === 'ArrowLeft' || code === 'KeyA' || code === 'KeyQ') return 'left';
+        if (code === 'ArrowRight' || code === 'KeyD') return 'right';
+        if (code === 'ArrowUp' || code === 'KeyW' || code === 'KeyZ') return 'up';
+        if (code === 'ArrowDown' || code === 'KeyS') return 'down';
+        if (code === 'Space' || code === 'Enter') return 'action';
+        if (code === 'Digit1' || code === 'Numpad1') return 'lane1';
+        if (code === 'Digit2' || code === 'Numpad2') return 'lane2';
+        if (code === 'Digit3' || code === 'Numpad3') return 'lane3';
+        return null;
+      };
+
+      global.addEventListener('keydown', (e) => {
+        this._setInputMode('keyboard');
+        // Konami code
+        if (e.code === this._konamiSeq[this._konamiIdx]) {
+          this._konamiIdx++;
+          if (this._konamiIdx === this._konamiSeq.length) {
+            this._konamiIdx = 0;
+            this.toggleGodMode();
+            global.AUDIO.sfxPerfect();
+          }
+        } else {
+          this._konamiIdx = e.code === this._konamiSeq[0] ? 1 : 0;
+        }
+
+        const act = mapKey(e.code);
+        if (act) {
+          if (this.running && !this.paused) e.preventDefault();
+          if (!this.keys[act]) this.justPressed[act] = true;
+          this.keys[act] = true;
+        }
+      });
+
+      global.addEventListener('keyup', (e) => {
+        const act = mapKey(e.code);
+        if (act) this.keys[act] = false;
+      });
+
+      // Pointer / touch on canvas
+      const toCanvasPos = (clientX, clientY) => {
+        const rect = this.canvas.getBoundingClientRect();
+        const sx = this.W / rect.width;
+        const sy = this.H / rect.height;
+        return {
+          x: Math.max(0, Math.min(this.W, (clientX - rect.left) * sx)),
+          y: Math.max(0, Math.min(this.H, (clientY - rect.top) * sy))
+        };
+      };
+
+      this.canvas.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') this._setInputMode('touch');
+        else this._setInputMode('keyboard');
+        global.AUDIO.ensure();
+        const pos = toCanvasPos(e.clientX, e.clientY);
+        this.pointer.active = true;
+        this.pointer.down = true;
+        this.pointer.justDown = true;
+        this.pointer.x = pos.x;
+        this.pointer.y = pos.y;
+      });
+
+      global.addEventListener('pointermove', (e) => {
+        if (!this.canvas) return;
+        const pos = toCanvasPos(e.clientX, e.clientY);
+        this.pointer.active = true;
+        this.pointer.x = pos.x;
+        this.pointer.y = pos.y;
+      });
+
+      global.addEventListener('pointerup', () => {
+        if (this.pointer.down) this.pointer.justUp = true;
+        this.pointer.down = false;
+      });
+
+      // Auto-pause when tab is hidden or window loses focus
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && this.running && !this.paused) {
+          this.setPaused(true);
+          if (this.onAutoPause) this.onAutoPause();
+        }
+      });
+
+      global.addEventListener('blur', () => {
+        this.keys = {};
+        if (this.running && !this.paused) {
+          this.setPaused(true);
+          if (this.onAutoPause) this.onAutoPause();
+        }
+      });
+    }
+
+    _startLoop() {
+      if (this._raf) cancelAnimationFrame(this._raf);
+      this._lastTs = performance.now();
+      const frame = (ts) => {
+        if (!this.running) return;
+        const rawDt = (ts - this._lastTs) / 1000;
+        this._lastTs = ts;
+        const dt = Math.min(0.05, Math.max(0.001, rawDt));
+
+        if (!this.paused) {
+          this._update(dt);
+          this._render();
+          if (this.onHudUpdate) this.onHudUpdate();
+        }
+        this._raf = requestAnimationFrame(frame);
+      };
+      this._raf = requestAnimationFrame(frame);
+    }
+
+    _update(dt) {
+      if (this.hitstop > 0) {
+        this.hitstop -= dt;
+        this._clearFrameInputs();
+        return;
+      }
+
+      this.elapsed += dt;
+      if (this.shakeTime > 0) this.shakeTime = Math.max(0, this.shakeTime - dt);
+      if (this.flashAlpha > 0) this.flashAlpha = Math.max(0, this.flashAlpha - dt * 1.4);
+
+      // Update level
+      if (this.activeLevel && this.activeLevel.update) {
+        this.activeLevel.update(dt);
+      }
+
+      // Update particles
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 260 * dt;
+        p.life -= dt;
+        if (p.life <= 0) this.particles.splice(i, 1);
+      }
+
+      // Update popups
+      for (let i = this.popups.length - 1; i >= 0; i--) {
+        const pop = this.popups[i];
+        pop.y -= 36 * dt;
+        pop.life -= dt;
+        if (pop.life <= 0) this.popups.splice(i, 1);
+      }
+
+      this._clearFrameInputs();
+    }
+
+    _clearFrameInputs() {
+      this.justPressed = {};
+      this.pointer.justDown = false;
+      this.pointer.justUp = false;
+    }
+
+    _render() {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.clearRect(0, 0, this.W, this.H);
+
+      if (this.shakeTime > 0 && !this.isReducedMotion()) {
+        const dx = (Math.random() - 0.5) * 2 * this.shakeMag;
+        const dy = (Math.random() - 0.5) * 2 * this.shakeMag;
+        ctx.translate(dx, dy);
+      }
+
+      if (this.activeLevel && this.activeLevel.render) {
+        this.activeLevel.render(ctx);
+      }
+
+      // Particles
+      for (const p of this.particles) {
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      }
+      ctx.globalAlpha = 1;
+
+      // Floating popups
+      ctx.font = 'bold 18px Consolas, monospace';
+      ctx.textAlign = 'center';
+      for (const pop of this.popups) {
+        ctx.globalAlpha = Math.max(0, pop.life / pop.maxLife);
+        ctx.fillStyle = '#000';
+        ctx.fillText(pop.text, pop.x + 2, pop.y + 2);
+        ctx.fillStyle = pop.color;
+        ctx.fillText(pop.text, pop.x, pop.y);
+      }
+      ctx.globalAlpha = 1;
+
+      // Low-days danger vignette
+      if (this.days <= 8) {
+        const pulse = this.isReducedMotion() ? 0.16 : 0.14 + Math.sin(this.elapsed * 8) * 0.08;
+        const grad = ctx.createRadialGradient(this.W / 2, this.H / 2, this.H * 0.35, this.W / 2, this.H / 2, this.W * 0.65);
+        grad.addColorStop(0, 'rgba(255,46,76,0)');
+        grad.addColorStop(1, `rgba(255,46,76,${pulse})`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, this.W, this.H);
+      }
+
+      // Screen flash
+      if (this.flashAlpha > 0 && this.flashColor) {
+        ctx.globalAlpha = this.flashAlpha;
+        ctx.fillStyle = this.flashColor;
+        ctx.fillRect(0, 0, this.W, this.H);
+        ctx.globalAlpha = 1;
+      }
+
+      ctx.restore();
+    }
+  }
+
+  global.ENGINE = new GameEngine();
+})(window);
+
+
+// ===== levels-1-6.js =====
+/* Levels 1–6: Public History (1978–2023) */
+(function (global) {
+  'use strict';
+
+  const E = global.ENGINE;
+  const S = global.SPRITES;
+  const A = global.AUDIO;
+
+  // =========================================================
+  // LEVEL 1: 1978 · The Prodigy (Table Tennis)
+  // =========================================================
+  E.registerLevel(1, (eng) => {
+    const W = eng.W, H = eng.H;
+    let paddleX, oppX, ball, rally, targetRally, smashTimer, serveDelay;
+
+    function resetBall(dirY = 1) {
+      const spd = (320 + rally * 16) * eng.diff.speedMult;
+      const angle = (Math.random() - 0.5) * 0.9;
+      ball = {
+        x: W / 2,
+        y: H * 0.34,
+        vx: Math.sin(angle) * spd * 0.85,
+        vy: dirY * Math.cos(angle) * spd,
+        spin: 0,
+        trail: []
+      };
+      serveDelay = 0.45;
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: 'touchHit' },
+      init() {
+        paddleX = W / 2;
+        oppX = W / 2;
+        rally = 0;
+        targetRally = eng.save.difficulty === 'easy' ? 12 : eng.save.difficulty === 'hard' ? 18 : 15;
+        smashTimer = 0;
+        resetBall(1);
+        eng.setProgress(0, `0 / ${targetRally}`);
+      },
+      update(dt) {
+        const moveSpd = 560;
+        if (eng.isDown('left')) paddleX -= moveSpd * dt;
+        if (eng.isDown('right')) paddleX += moveSpd * dt;
+        if (eng.pointer.down) {
+          paddleX += (eng.pointer.x - paddleX) * Math.min(1, dt * 18);
+        }
+        paddleX = Math.max(175, Math.min(W - 175, paddleX));
+
+        if (eng.wasPressed('action')) smashTimer = 0.22;
+        if (smashTimer > 0) smashTimer -= dt;
+
+        // Opponent AI tracks ball
+        const oppTarget = ball.vy < 0 ? ball.x : W / 2;
+        oppX += (oppTarget - oppX) * Math.min(1, dt * 7.5);
+        oppX = Math.max(230, Math.min(W - 230, oppX));
+
+        if (serveDelay > 0) {
+          serveDelay -= dt;
+          return;
+        }
+
+        ball.trail.push({ x: ball.x, y: ball.y });
+        if (ball.trail.length > 9) ball.trail.shift();
+
+        ball.vx += ball.spin * dt;
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+
+        // Side table bounds (perspective trapezoid)
+        const t = (ball.y - 110) / (445 - 110);
+        const halfW = 240 + Math.max(0, Math.min(1, t)) * 130;
+        if (ball.x < W / 2 - halfW) {
+          ball.x = W / 2 - halfW;
+          ball.vx = Math.abs(ball.vx);
+        } else if (ball.x > W / 2 + halfW) {
+          ball.x = W / 2 + halfW;
+          ball.vx = -Math.abs(ball.vx);
+        }
+
+        // Opponent return
+        if (ball.vy < 0 && ball.y <= 128) {
+          ball.y = 128;
+          const spd = Math.min(680, (340 + rally * 20) * eng.diff.speedMult);
+          const aim = (Math.random() - 0.5) * 1.1;
+          ball.vx = Math.sin(aim) * spd * 0.8;
+          ball.vy = Math.abs(Math.cos(aim) * spd);
+          ball.spin = (Math.random() - 0.5) * 160 * (rally > 4 ? 1 : 0);
+          A.sfxHit();
+          eng.burst(ball.x, ball.y, '#ffffff', 6, 90);
+        }
+
+        // Player paddle hit
+        const padW = 76 * eng.diff.windowMult;
+        if (ball.vy > 0 && ball.y >= 425 && ball.y <= 462 && Math.abs(ball.x - paddleX) <= padW) {
+          ball.y = 424;
+          const offset = (ball.x - paddleX) / padW;
+          const isSmash = smashTimer > 0;
+          const spd = Math.min(760, (370 + rally * 22 + (isSmash ? 110 : 0)) * eng.diff.speedMult);
+          ball.vx = offset * spd * 0.85;
+          ball.vy = -Math.sqrt(Math.max(12000, spd * spd - ball.vx * ball.vx));
+          ball.spin = -offset * 90;
+
+          rally += isSmash ? 1.5 : 1;
+          eng.addStreak(1);
+          if (isSmash) {
+            A.sfxSmash();
+            eng.freeze(0.035);
+            eng.shake(0.12, 5);
+            eng.addScore(180, 'SMASH!', ball.x, ball.y - 24, '#f5b942');
+            eng.burst(ball.x, ball.y, '#f5b942', 16, 220);
+          } else {
+            A.sfxHit();
+            eng.addScore(100, '+100', ball.x, ball.y - 20, '#a6ff00');
+            eng.burst(ball.x, ball.y, '#a6ff00', 9, 140);
+          }
+          eng.setProgress(rally / targetRally, `${Math.min(targetRally, Math.floor(rally))} / ${targetRally}`);
+          if (rally >= targetRally) eng.winLevel();
+        }
+
+        // Missed ball
+        if (ball.y > H + 15) {
+          eng.damage(5, paddleX, 430);
+          resetBall(1);
+        }
+      },
+      render(ctx) {
+        // Gym floor background
+        ctx.fillStyle = '#0d1522';
+        ctx.fillRect(0, 0, W, H);
+        // Subtle court lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 10; i++) {
+          ctx.beginPath();
+          ctx.moveTo(0, i * 60);
+          ctx.lineTo(W, i * 60);
+          ctx.stroke();
+        }
+
+        // Perspective Ping-Pong Table
+        ctx.fillStyle = '#144c3c';
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 240, 110);
+        ctx.lineTo(W / 2 + 240, 110);
+        ctx.lineTo(W / 2 + 370, 445);
+        ctx.lineTo(W / 2 - 370, 445);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Center line & Net
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(W / 2, 110);
+        ctx.lineTo(W / 2, 445);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.22)';
+        ctx.fillRect(W / 2 - 310, 258, 620, 12);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.strokeRect(W / 2 - 310, 258, 620, 12);
+
+        // Opponent paddle
+        ctx.fillStyle = '#ff5a5f';
+        ctx.beginPath();
+        ctx.roundRect(oppX - 42, 102, 84, 16, 8);
+        ctx.fill();
+
+        // Ball trail
+        for (let i = 0; i < ball.trail.length; i++) {
+          const tr = ball.trail[i];
+          ctx.fillStyle = `rgba(255,255,255,${(i / ball.trail.length) * 0.35})`;
+          ctx.beginPath();
+          ctx.arc(tr.x, tr.y, 4 + i * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Ball shadow & ball
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.beginPath();
+        ctx.ellipse(ball.x, ball.y + 10, 9, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff9db';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Player paddle
+        const padW = 76 * eng.diff.windowMult;
+        ctx.fillStyle = smashTimer > 0 ? '#f5b942' : '#76b900';
+        ctx.beginPath();
+        ctx.roundRect(paddleX - padW, 434, padW * 2, 18, 9);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Jensen sprite behind paddle
+        S.drawDir(ctx, 4, paddleX, 532, 92);
+
+        // Banner
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.font = 'bold 14px Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('1978 U.S. OPEN JUNIOR DOUBLES', W / 2, 42);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 2: 1978–1993 · The Rush (Denny's Diner -> Nvidia Booth)
+  // =========================================================
+  E.registerLevel(2, (eng) => {
+    const W = eng.W, H = eng.H;
+    const FOOD = [
+      { id: 'coffee', icon: '☕', label: 'CAFÉ', color: '#d9822b' },
+      { id: 'pancake', icon: '🥞', label: 'PANCAKE', color: '#f5b942' },
+      { id: 'burger', icon: '🍔', label: 'BURGER', color: '#ff5a5f' }
+    ];
+    const CHIPS = [
+      { id: 'gpu', icon: '🟩', label: 'GPU', color: '#76b900' },
+      { id: 'pcb', icon: '⚡', label: 'NV1', color: '#38bdf8' },
+      { id: 'wafer', icon: '💿', label: 'WAFER', color: '#c084fc' }
+    ];
+    const BOOTH_X = [170, 380, 580, 790];
+
+    let playerX, facingLeft, walkT, heldItem, beltItems, booths, delivered, targetDelivered, era1993, spawnTimer, bannerFlash;
+
+    function pool() {
+      return era1993 ? CHIPS : FOOD;
+    }
+
+    function spawnBeltItem() {
+      const p = pool();
+      const item = p[Math.floor(Math.random() * p.length)];
+      beltItems.push({ ...item, x: -40, y: 125 });
+    }
+
+    function assignOrder(b) {
+      const p = pool();
+      b.want = p[Math.floor(Math.random() * p.length)];
+      b.maxPatience = (era1993 ? 11.5 : 13) * eng.diff.windowMult;
+      b.patience = b.maxPatience;
+      b.cooldown = 0;
+    }
+
+    function tryInteractAt(px) {
+      // Check nearest belt item first if hands empty, or booth if holding
+      if (!heldItem) {
+        let best = null, bestD = 90;
+        for (let i = 0; i < beltItems.length; i++) {
+          const d = Math.abs(beltItems[i].x - px);
+          if (d < bestD) { bestD = d; best = i; }
+        }
+        if (best !== null) {
+          heldItem = beltItems.splice(best, 1)[0];
+          A.sfxClick();
+          return;
+        }
+      } else {
+        // Deliver to closest booth
+        let bIdx = 0, bestD = 999;
+        BOOTH_X.forEach((bx, idx) => {
+          const d = Math.abs(bx - px);
+          if (d < bestD) { bestD = d; bIdx = idx; }
+        });
+        const b = booths[bIdx];
+        if (b && b.want && bestD < 110) {
+          if (b.want.id === heldItem.id) {
+            delivered++;
+            eng.addStreak(1);
+            eng.addScore(150, 'SERVED!', b.x, 340, '#a6ff00');
+            eng.heal(0.5, false);
+            eng.burst(b.x, 360, heldItem.color, 14, 170);
+            A.sfxGood();
+            heldItem = null;
+            b.want = null;
+            b.cooldown = 1.6;
+
+            if (!era1993 && delivered >= Math.floor(targetDelivered / 2)) {
+              era1993 = true;
+              bannerFlash = 2.4;
+              A.sfxPhase();
+              eng.flash('#76b900', 0.22);
+              // Refresh active orders to chips
+              beltItems = [];
+              booths.forEach((bo) => { if (bo.want) assignOrder(bo); });
+            }
+
+            eng.setProgress(delivered / targetDelivered, `${delivered} / ${targetDelivered}`);
+            if (delivered >= targetDelivered) eng.winLevel();
+          } else {
+            eng.damage(3.5, b.x, 340);
+            heldItem = null;
+          }
+          return;
+        }
+        // Discard held item if pressing action away from booths
+        heldItem = null;
+        A.sfxClick();
+      }
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: 'touchAction' },
+      init() {
+        playerX = W / 2;
+        facingLeft = false;
+        walkT = 0;
+        heldItem = null;
+        beltItems = [];
+        delivered = 0;
+        targetDelivered = eng.save.difficulty === 'easy' ? 10 : eng.save.difficulty === 'hard' ? 15 : 12;
+        era1993 = false;
+        spawnTimer = 0.2;
+        bannerFlash = 0;
+        booths = BOOTH_X.map((x, i) => ({ x, want: null, patience: 0, maxPatience: 12, cooldown: 0.6 + i * 1.1 }));
+        // Pre-seed belt
+        for (let i = 0; i < 4; i++) {
+          const item = FOOD[i % FOOD.length];
+          beltItems.push({ ...item, x: 160 + i * 210, y: 125 });
+        }
+        eng.setProgress(0, `0 / ${targetDelivered}`);
+      },
+      update(dt) {
+        const moveSpd = 460;
+        let vx = 0;
+        if (eng.isDown('left')) vx -= moveSpd;
+        if (eng.isDown('right')) vx += moveSpd;
+        playerX = Math.max(90, Math.min(W - 90, playerX + vx * dt));
+        if (Math.abs(vx) > 10) {
+          facingLeft = vx < 0;
+          walkT += dt * 11;
+        }
+
+        // Direct click/tap support on belt items or booths!
+        if (eng.pointer.justDown) {
+          const px = eng.pointer.x, py = eng.pointer.y;
+          if (py < 210) {
+            // Clicked near belt: snap to nearest item and grab
+            let best = null, bestD = 85;
+            for (let i = 0; i < beltItems.length; i++) {
+              const d = Math.abs(beltItems[i].x - px);
+              if (d < bestD) { bestD = d; best = i; }
+            }
+            if (best !== null) {
+              playerX = beltItems[best].x;
+              heldItem = beltItems.splice(best, 1)[0];
+              A.sfxClick();
+            }
+          } else if (py > 270) {
+            // Clicked a booth
+            let bIdx = 0, bestD = 999;
+            BOOTH_X.forEach((bx, idx) => {
+              const d = Math.abs(bx - px);
+              if (d < bestD) { bestD = d; bIdx = idx; }
+            });
+            playerX = BOOTH_X[bIdx];
+            if (heldItem) tryInteractAt(playerX);
+          }
+        }
+
+        if (eng.wasPressed('action') || eng.wasPressed('up') || eng.wasPressed('down')) {
+          tryInteractAt(playerX);
+        }
+
+        // Belt movement
+        const beltSpd = (era1993 ? 135 : 108) * eng.diff.speedMult;
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) {
+          spawnBeltItem();
+          spawnTimer = 1.45 / eng.diff.speedMult;
+        }
+        for (let i = beltItems.length - 1; i >= 0; i--) {
+          beltItems[i].x += beltSpd * dt;
+          if (beltItems[i].x > W + 50) beltItems.splice(i, 1);
+        }
+
+        // Booth orders
+        for (const b of booths) {
+          if (b.want) {
+            b.patience -= dt;
+            if (b.patience <= 0) {
+              eng.damage(4.5, b.x, 340);
+              b.want = null;
+              b.cooldown = 1.8;
+            }
+          } else {
+            b.cooldown -= dt;
+            if (b.cooldown <= 0) assignOrder(b);
+          }
+        }
+
+        if (bannerFlash > 0) bannerFlash -= dt;
+      },
+      render(ctx) {
+        // Diner / 1993 Silicon Lab floor
+        ctx.fillStyle = era1993 ? '#0c1814' : '#1b141a';
+        ctx.fillRect(0, 0, W, H);
+
+        // Checkered diner strip
+        const tile = 32;
+        for (let x = 0; x < W; x += tile) {
+          ctx.fillStyle = ((x / tile) % 2 === 0)
+            ? (era1993 ? 'rgba(118,185,0,0.08)' : 'rgba(255,90,95,0.08)')
+            : 'rgba(255,255,255,0.02)';
+          ctx.fillRect(x, 180, tile, 160);
+        }
+
+        // Neon sign
+        ctx.fillStyle = era1993 ? '#a6ff00' : '#ff7b54';
+        ctx.font = 'bold 16px Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(era1993 ? '★ 1993 · NVIDIA CONCEIVED AT DENNY\'S BOOTH #4 ★' : '★ DENNY\'S DINER · NIGHT SHIFT ★', W / 2, 42);
+
+        // Conveyor Belt
+        ctx.fillStyle = '#242c3a';
+        ctx.fillRect(0, 92, W, 68);
+        ctx.strokeStyle = era1993 ? '#76b900' : '#ff5a5f';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(0, 92, W, 68);
+
+        // Belt rollers
+        const off = (eng.elapsed * 90) % 40;
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        for (let x = off; x < W; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 96);
+          ctx.lineTo(x, 156);
+          ctx.stroke();
+        }
+
+        // Belt items
+        for (const it of beltItems) {
+          ctx.fillStyle = '#111827';
+          ctx.beginPath();
+          ctx.roundRect(it.x - 32, it.y - 24, 64, 48, 10);
+          ctx.fill();
+          ctx.strokeStyle = it.color;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.font = '22px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(it.icon, it.x, it.y + 4);
+          ctx.font = 'bold 10px Consolas, monospace';
+          ctx.fillStyle = '#fff';
+          ctx.fillText(it.label, it.x, it.y + 20);
+        }
+
+        // Player Jensen
+        S.drawWalk(ctx, walkT, playerX, 325, 108, facingLeft);
+
+        // Held item bubble above Jensen
+        if (heldItem) {
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.roundRect(playerX - 30, 185, 60, 42, 8);
+          ctx.fill();
+          ctx.strokeStyle = '#a6ff00';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.font = '20px sans-serif';
+          ctx.fillText(heldItem.icon, playerX, 211);
+          ctx.font = 'bold 9px Consolas, monospace';
+          ctx.fillStyle = '#a6ff00';
+          ctx.fillText(heldItem.label, playerX, 223);
+        }
+
+        // Booths
+        for (let i = 0; i < booths.length; i++) {
+          const b = booths[i];
+          ctx.fillStyle = era1993 ? '#13261d' : '#2d1a22';
+          ctx.beginPath();
+          ctx.roundRect(b.x - 74, 385, 148, 118, 12);
+          ctx.fill();
+          ctx.strokeStyle = b.want && heldItem && b.want.id === heldItem.id ? '#a6ff00' : 'rgba(255,255,255,0.18)';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          ctx.fillStyle = 'rgba(255,255,255,0.45)';
+          ctx.font = 'bold 11px Consolas, monospace';
+          ctx.fillText(`BOOTH #${i + 1}`, b.x, 405);
+
+          if (b.want) {
+            ctx.font = '28px sans-serif';
+            ctx.fillText(b.want.icon, b.x, 446);
+            ctx.font = 'bold 12px Consolas, monospace';
+            ctx.fillStyle = b.want.color;
+            ctx.fillText(b.want.label, b.x, 466);
+
+            // Patience bar
+            const ratio = Math.max(0, b.patience / b.maxPatience);
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.fillRect(b.x - 54, 478, 108, 10);
+            ctx.fillStyle = ratio > 0.45 ? '#76b900' : ratio > 0.22 ? '#f5b942' : '#ff2e4c';
+            ctx.fillRect(b.x - 54, 478, 108 * ratio, 10);
+          }
+        }
+
+        if (bannerFlash > 0) {
+          ctx.fillStyle = 'rgba(118, 185, 0, 0.9)';
+          ctx.fillRect(0, 232, W, 56);
+          ctx.fillStyle = '#071000';
+          ctx.font = '900 22px Consolas, monospace';
+          ctx.fillText('1993 · NVIDIA IS BORN! SERVE SILICON CHIPS!', W / 2, 267);
+        }
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 3: 1997 · Thirty Days (The Silicon Wafer)
+  // =========================================================
+  E.registerLevel(3, (eng) => {
+    const W = eng.W, H = eng.H;
+    const CX = W / 2, CY = H / 2 + 12, R = 165;
+    let waferNum, angle, rotSpeed, dies, totalGood, harvested, bossPhaseT, strikeFlash;
+
+    function buildWafer(num) {
+      waferNum = num;
+      dies = [];
+      const count = num === 3 ? 16 : num === 2 ? 14 : 12;
+      const goodTarget = num === 3 ? 7 : num === 2 ? 6 : 5;
+      const types = [];
+      for (let i = 0; i < goodTarget; i++) types.push(i === 0 && num === 3 ? 'gold' : 'good');
+      while (types.length < count) types.push('bad');
+      // Shuffle
+      for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [types[i], types[j]] = [types[j], types[i]];
+      }
+      for (let i = 0; i < count; i++) {
+        dies.push({
+          angle: (i / count) * Math.PI * 2,
+          type: types[i], // 'good' | 'gold' | 'bad'
+          done: false
+        });
+      }
+      rotSpeed = (num === 3 ? 1.85 : num === 2 ? 1.5 : 1.2) * eng.diff.speedMult;
+      bossPhaseT = 0;
+    }
+
+    function countRemainingGood() {
+      return dies.filter((d) => !d.done && (d.type === 'good' || d.type === 'gold')).length;
+    }
+
+    return {
+      touchLayout: { leftRight: false, dpad: false, lanes: false, action: 'touchHit' },
+      init() {
+        angle = 0;
+        harvested = 0;
+        totalGood = 5 + 6 + 7;
+        strikeFlash = 0;
+        buildWafer(1);
+        eng.setProgress(0, `WAFER 1/3`);
+      },
+      update(dt) {
+        // Cash burns down continuously!
+        eng.burnDays((waferNum === 3 ? 0.78 : 0.62) * dt);
+
+        if (waferNum === 3) {
+          // Boss Wafer: speed oscillates & reverses periodically
+          bossPhaseT += dt;
+          const wave = Math.sin(bossPhaseT * 1.45);
+          const dir = Math.cos(bossPhaseT * 0.55) >= 0 ? 1 : -1;
+          angle += dir * (1.25 + Math.abs(wave) * 1.35) * eng.diff.speedMult * dt;
+        } else {
+          angle += rotSpeed * dt;
+        }
+
+        if (strikeFlash > 0) strikeFlash -= dt;
+
+        if (eng.wasPressed('action') || eng.pointer.justDown) {
+          strikeFlash = 0.14;
+          // Probe sits at top (-PI/2)
+          const probeAng = -Math.PI / 2;
+          let hitDie = null;
+          let bestDiff = (0.24 * eng.diff.windowMult);
+          for (const d of dies) {
+            if (d.done) continue;
+            let diff = ((d.angle + angle - probeAng) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+            if (Math.abs(diff) < bestDiff) {
+              bestDiff = Math.abs(diff);
+              hitDie = d;
+            }
+          }
+
+          if (hitDie && (hitDie.type === 'good' || hitDie.type === 'gold')) {
+            hitDie.done = true;
+            harvested++;
+            eng.addStreak(1);
+            const isGold = hitDie.type === 'gold';
+            eng.heal(isGold ? 3.0 : 1.5, true, CX, CY - R - 20);
+            eng.addScore(isGold ? 300 : 140, isGold ? 'RIVA 128!' : 'GOOD DIE!', CX, CY - R + 15, isGold ? '#f5b942' : '#a6ff00');
+            eng.burst(CX, CY - R + 22, isGold ? '#f5b942' : '#a6ff00', 16, 190);
+            if (isGold) A.sfxPerfect(); else A.sfxGood();
+
+            if (countRemainingGood() === 0) {
+              if (waferNum < 3) {
+                A.sfxPhase();
+                buildWafer(waferNum + 1);
+                eng.popup(waferNum === 3 ? 'BOSS WAFER: RIVA 128!' : `WAFER ${waferNum}/3`, CX, CY, '#f5b942');
+              } else {
+                eng.setProgress(1, 'WAFER 3/3');
+                eng.winLevel();
+                return;
+              }
+            }
+            eng.setProgress(harvested / totalGood, `WAFER ${waferNum}/3`);
+          } else {
+            eng.damage(3.8, CX, CY - R + 20);
+          }
+        }
+      },
+      render(ctx) {
+        // Cleanroom lab background
+        ctx.fillStyle = '#080e16';
+        ctx.fillRect(0, 0, W, H);
+
+        // Silicon wafer disc
+        const grad = ctx.createRadialGradient(CX - 40, CY - 40, 20, CX, CY, R + 18);
+        grad.addColorStop(0, '#334155');
+        grad.addColorStop(0.7, '#1e293b');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(CX, CY, R + 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = waferNum === 3 ? '#f5b942' : '#76b900';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Inner ring
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(CX, CY, R - 34, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Dies around perimeter
+        for (const d of dies) {
+          const a = d.angle + angle;
+          const dx = CX + Math.cos(a) * (R - 14);
+          const dy = CY + Math.sin(a) * (R - 14);
+          ctx.save();
+          ctx.translate(dx, dy);
+          ctx.rotate(a + Math.PI / 2);
+          if (d.done) {
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+          } else if (d.type === 'gold') {
+            ctx.fillStyle = '#f5b942';
+          } else if (d.type === 'good') {
+            ctx.fillStyle = '#76b900';
+          } else {
+            ctx.fillStyle = '#ef4444';
+          }
+          ctx.fillRect(-14, -14, 28, 28);
+          ctx.strokeStyle = '#0b1019';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(-14, -14, 28, 28);
+          ctx.restore();
+        }
+
+        // Center label
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 16px Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(waferNum === 3 ? 'BOSS: RIVA 128' : `WAFER ${waferNum} / 3`, CX, CY - 8);
+        ctx.fillStyle = '#ff6b81';
+        ctx.font = 'bold 12px Consolas, monospace';
+        ctx.fillText(global.I18N.lang === 'fr' ? 'TRÉSORERIE EN FEU !' : 'PAYROLL BURNING!', CX, CY + 16);
+
+        // Laser Probe at 12 o'clock
+        ctx.fillStyle = strikeFlash > 0 ? '#a6ff00' : '#94a3b8';
+        ctx.fillRect(CX - 18, 26, 36, 46);
+        ctx.strokeStyle = strikeFlash > 0 ? '#a6ff00' : '#f5b942';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(CX - 20, CY - R - 3, 40, 36);
+        if (strikeFlash > 0) {
+          ctx.fillStyle = 'rgba(166,255,0,0.45)';
+          ctx.fillRect(CX - 4, 72, 8, CY - R - 60);
+        }
+
+        // Jensen observing on left
+        S.drawDir(ctx, 1, 130, 480, 120);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 4: 1999–2012 · The Run (Side-Scrolling Runner)
+  // =========================================================
+  E.registerLevel(4, (eng) => {
+    const W = eng.W, H = eng.H;
+    const GROUND_Y = 435;
+    const MILESTONES = [
+      { p: 0.08, label: '1999 · IPO' },
+      { p: 0.28, label: '1999 · GeForce 256' },
+      { p: 0.55, label: '2006 · CUDA SHIELD!' },
+      { p: 0.85, label: '2012 · AI ERA' }
+    ];
+
+    let py, vy, jumpsLeft, ducking, dist, targetDist, obstacles, chips, spawnT, chipT, cudaGranted, cudaShield, walkT, invuln;
+
+    return {
+      touchLayout: { leftRight: false, dpad: true, lanes: false, action: 'touchJump' },
+      init() {
+        py = GROUND_Y;
+        vy = 0;
+        jumpsLeft = 2;
+        ducking = false;
+        dist = 0;
+        targetDist = eng.save.difficulty === 'easy' ? 11500 : eng.save.difficulty === 'hard' ? 15000 : 13200;
+        obstacles = [];
+        chips = [];
+        spawnT = 1.0;
+        chipT = 0.6;
+        cudaGranted = false;
+        cudaShield = 0;
+        walkT = 0;
+        invuln = 0;
+        eng.setProgress(0, '1999');
+      },
+      update(dt) {
+        const speed = (370 + (dist / targetDist) * 140) * eng.diff.speedMult;
+        dist += speed * dt;
+        walkT += dt * 13;
+        if (invuln > 0) invuln -= dt;
+        if (cudaShield > 0) cudaShield -= dt;
+
+        const prog = Math.min(1, dist / targetDist);
+        const year = Math.floor(1999 + prog * 13);
+        eng.setProgress(prog, `${year}`);
+
+        // Grant CUDA Shield at 2006 (55%)
+        if (!cudaGranted && prog >= 0.55) {
+          cudaGranted = true;
+          cudaShield = 9.0;
+          A.sfxPerfect();
+          eng.flash('#76b900', 0.25);
+          eng.popup('2006 · CUDA SHIELD!', 260, 220, '#a6ff00');
+          eng.burst(180, py - 45, '#a6ff00', 22, 220);
+        }
+
+        // Jump & Double Jump
+        if (eng.wasPressed('up') || eng.wasPressed('action') || (eng.pointer.justDown && eng.pointer.y < H * 0.7)) {
+          if (jumpsLeft > 0) {
+            vy = jumpsLeft === 2 ? -580 : -510;
+            jumpsLeft--;
+            A.sfxJump();
+            eng.burst(180, py, '#a6ff00', 7, 110);
+          }
+        }
+        ducking = eng.isDown('down') || (eng.pointer.down && eng.pointer.y >= H * 0.7);
+
+        vy += 1650 * dt;
+        py += vy * dt;
+        if (py >= GROUND_Y) {
+          py = GROUND_Y;
+          vy = 0;
+          jumpsLeft = 2;
+        }
+
+        // Spawn obstacles (ground blocks & high drones you should duck under)
+        spawnT -= dt;
+        if (spawnT <= 0) {
+          const isHigh = Math.random() < 0.42;
+          obstacles.push({
+            x: W + 60,
+            y: isHigh ? GROUND_Y - 78 : GROUND_Y - 42,
+            w: isHigh ? 64 : 42,
+            h: isHigh ? 36 : 42,
+            high: isHigh
+          });
+          spawnT = (1.15 + Math.random() * 0.65) / eng.diff.speedMult;
+        }
+
+        // Spawn collectible chips
+        chipT -= dt;
+        if (chipT <= 0) {
+          chips.push({
+            x: W + 40,
+            y: GROUND_Y - (Math.random() < 0.5 ? 36 : 125),
+            r: 14
+          });
+          chipT = 0.75 + Math.random() * 0.6;
+        }
+
+        // Player hitbox
+        const pH = ducking && py >= GROUND_Y ? 48 : 88;
+        const pBox = { x: 162, y: py - pH, w: 36, h: pH };
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const o = obstacles[i];
+          o.x -= speed * dt;
+          if (o.x + o.w < -40) { obstacles.splice(i, 1); continue; }
+          if (pBox.x < o.x + o.w && pBox.x + pBox.w > o.x && pBox.y < o.y + o.h && pBox.y + pBox.h > o.y) {
+            if (cudaShield > 0) {
+              // CUDA blasts obstacle away!
+              obstacles.splice(i, 1);
+              eng.addScore(150, 'CUDA!', o.x, o.y, '#a6ff00');
+              eng.burst(o.x, o.y, '#a6ff00', 14, 210);
+              A.sfxSmash();
+            } else if (invuln <= 0) {
+              obstacles.splice(i, 1);
+              invuln = 0.9;
+              eng.damage(4.5, 180, py - 50);
+            }
+          }
+        }
+
+        for (let i = chips.length - 1; i >= 0; i--) {
+          const c = chips[i];
+          c.x -= speed * dt;
+          if (c.x < -30) { chips.splice(i, 1); continue; }
+          if (pBox.x < c.x + c.r && pBox.x + pBox.w > c.x - c.r && pBox.y < c.y + c.r && pBox.y + pBox.h > c.y - c.r) {
+            chips.splice(i, 1);
+            eng.addStreak(1);
+            eng.addScore(90, '+CHIP', c.x, c.y, '#a6ff00');
+            eng.heal(0.4, false);
+            eng.burst(c.x, c.y, '#a6ff00', 8, 120);
+            A.sfxGood();
+          }
+        }
+
+        if (dist >= targetDist) eng.winLevel();
+      },
+      render(ctx) {
+        // Silicon skyline sky
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, '#07111f');
+        grad.addColorStop(1, '#122238');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Parallax circuit towers
+        const bgOff = (dist * 0.25) % 160;
+        ctx.fillStyle = 'rgba(118,185,0,0.08)';
+        for (let x = -bgOff; x < W + 160; x += 160) {
+          ctx.fillRect(x, 220, 60, 215);
+          ctx.fillRect(x + 80, 280, 48, 155);
+        }
+
+        // Milestone signposts
+        for (const m of MILESTONES) {
+          const mx = 180 + (m.p * targetDist - dist) * 0.5;
+          if (mx > -180 && mx < W + 180) {
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(mx - 4, 240, 8, GROUND_Y - 240);
+            ctx.fillStyle = m.p === 0.55 ? '#76b900' : '#0f172a';
+            ctx.strokeStyle = '#a6ff00';
+            ctx.lineWidth = 2;
+            ctx.fillRect(mx - 88, 200, 176, 40);
+            ctx.strokeRect(mx - 88, 200, 176, 40);
+            ctx.fillStyle = m.p === 0.55 ? '#071000' : '#ffffff';
+            ctx.font = 'bold 13px Consolas, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(m.label, mx, 225);
+          }
+        }
+
+        // Ground track
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+        ctx.fillStyle = '#76b900';
+        ctx.fillRect(0, GROUND_Y, W, 4);
+
+        // Chips
+        for (const c of chips) {
+          ctx.fillStyle = '#76b900';
+          ctx.fillRect(c.x - 11, c.y - 11, 22, 22);
+          ctx.strokeStyle = '#d9ff80';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(c.x - 11, c.y - 11, 22, 22);
+        }
+
+        // Obstacles
+        for (const o of obstacles) {
+          ctx.fillStyle = o.high ? '#f59e0b' : '#ef4444';
+          ctx.beginPath();
+          ctx.roundRect(o.x, o.y, o.w, o.h, 6);
+          ctx.fill();
+          ctx.fillStyle = '#000';
+          ctx.font = 'bold 11px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(o.high ? 'LOW!' : 'BUG', o.x + o.w / 2, o.y + o.h / 2 + 4);
+        }
+
+        // Jensen sprite
+        const alpha = invuln > 0 && Math.floor(eng.elapsed * 20) % 2 === 0 ? 0.35 : 1;
+        const h = ducking && py >= GROUND_Y ? 62 : 98;
+        S.drawWalk(ctx, walkT, 180, py, h, false, alpha);
+
+        // CUDA Shield aura
+        if (cudaShield > 0) {
+          ctx.strokeStyle = '#a6ff00';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(180, py - h / 2, 54, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(166,255,0,0.12)';
+          ctx.fill();
+        }
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 5: 2012 · In Parallel (AlexNet)
+  // =========================================================
+  E.registerLevel(5, (eng) => {
+    const W = eng.W, H = eng.H;
+    let lanes, relX, items, spawnT, caught, targetCaught, walkT;
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: null },
+      init() {
+        lanes = 2;
+        relX = 0.5; // 0..1 within each lane
+        items = [];
+        spawnT = 0.4;
+        caught = 0;
+        targetCaught = eng.save.difficulty === 'easy' ? 22 : eng.save.difficulty === 'hard' ? 34 : 28;
+        walkT = 0;
+        eng.setProgress(0, `2 GPUs · 0/${targetCaught}`);
+      },
+      update(dt) {
+        const moveSpd = 1.65;
+        if (eng.isDown('left')) { relX -= moveSpd * dt; walkT += dt * 10; }
+        if (eng.isDown('right')) { relX += moveSpd * dt; walkT += dt * 10; }
+        if (eng.pointer.down) {
+          // Map pointer position smoothly within current lane or screen
+          const laneW = W / lanes;
+          const local = (eng.pointer.x % laneW) / laneW;
+          relX += (local - relX) * Math.min(1, dt * 14);
+          walkT += dt * 8;
+        }
+        relX = Math.max(0.12, Math.min(0.88, relX));
+
+        // Scale up parallelism as progress increases: 2 -> 3 -> 4 -> 5 lanes!
+        const prog = caught / targetCaught;
+        const desiredLanes = prog >= 0.72 ? 5 : prog >= 0.48 ? 4 : prog >= 0.22 ? 3 : 2;
+        if (desiredLanes > lanes) {
+          lanes = desiredLanes;
+          A.sfxPhase();
+          eng.popup(`${lanes}× PARALLEL GPUs!`, W / 2, 140, '#38bdf8');
+        }
+
+        // Spawn falling data & hazards
+        spawnT -= dt;
+        if (spawnT <= 0) {
+          const lane = Math.floor(Math.random() * lanes);
+          const isBad = Math.random() < 0.36;
+          items.push({
+            lane,
+            rx: 0.16 + Math.random() * 0.68,
+            y: -20,
+            vy: (185 + lanes * 18) * eng.diff.speedMult,
+            bad: isBad
+          });
+          spawnT = Math.max(0.28, (0.72 - lanes * 0.07) / eng.diff.speedMult);
+        }
+
+        const laneW = W / lanes;
+        const hitW = Math.min(34, laneW * 0.2);
+
+        for (let i = items.length - 1; i >= 0; i--) {
+          const it = items[i];
+          it.y += it.vy * dt;
+          if (it.y > H + 30) { items.splice(i, 1); continue; }
+
+          if (it.lane < lanes) {
+            const ix = it.lane * laneW + it.rx * laneW;
+            const px = it.lane * laneW + relX * laneW;
+            if (it.y >= 405 && it.y <= 475 && Math.abs(ix - px) <= hitW) {
+              items.splice(i, 1);
+              if (it.bad) {
+                eng.damage(4.2, px, 420);
+              } else {
+                caught++;
+                eng.addStreak(1);
+                eng.addScore(110, '+DATA', px, 410, '#38bdf8');
+                eng.burst(px, 430, '#38bdf8', 10, 140);
+                A.sfxGood();
+                eng.setProgress(caught / targetCaught, `${lanes} GPUs · ${caught}/${targetCaught}`);
+                if (caught >= targetCaught) eng.winLevel();
+              }
+            }
+          }
+        }
+      },
+      render(ctx) {
+        ctx.fillStyle = '#070c16';
+        ctx.fillRect(0, 0, W, H);
+
+        const laneW = W / lanes;
+        for (let l = 0; l < lanes; l++) {
+          const x0 = l * laneW;
+          ctx.fillStyle = l % 2 === 0 ? 'rgba(56,189,248,0.04)' : 'rgba(118,185,0,0.04)';
+          ctx.fillRect(x0, 0, laneW, H);
+          ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x0, 0);
+          ctx.lineTo(x0, H);
+          ctx.stroke();
+
+          ctx.fillStyle = 'rgba(148,163,184,0.7)';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`GPU #${l + 1}`, x0 + laneW / 2, 28);
+
+          // Draw Jensen clone in this lane
+          const px = x0 + relX * laneW;
+          S.drawDir(ctx, 0, px, 488, Math.min(82, laneW * 0.48));
+        }
+
+        // Falling items
+        for (const it of items) {
+          if (it.lane >= lanes) continue;
+          const ix = it.lane * laneW + it.rx * laneW;
+          ctx.fillStyle = it.bad ? '#ef4444' : '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(ix, it.y, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#071019';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(it.bad ? '✕' : 'AI', ix, it.y + 4);
+        }
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 6: 2022–2023 · Under the Line (Export Limits)
+  // =========================================================
+  E.registerLevel(6, (eng) => {
+    const W = eng.W, H = eng.H;
+    let round, charge, charging, cap, zoneSize, chargeSpeed, gauntletStreak, phaseGauntlet, cooldown, resultMsg;
+
+    function setupRound() {
+      charge = 0;
+      charging = false;
+      cooldown = 0.25;
+      // Cap drops in 2023 rounds!
+      if (phaseGauntlet) {
+        cap = 0.56 + Math.random() * 0.24;
+        zoneSize = 0.135 * eng.diff.windowMult;
+        chargeSpeed = (0.78 + gauntletStreak * 0.12) * eng.diff.speedMult;
+      } else {
+        cap = round < 3 ? (0.82 - round * 0.05) : (0.64 - (round - 3) * 0.04);
+        zoneSize = 0.16 * eng.diff.windowMult;
+        chargeSpeed = (0.62 + round * 0.06) * eng.diff.speedMult;
+      }
+    }
+
+    function evaluate() {
+      const low = cap - zoneSize;
+      if (charge > cap) {
+        resultMsg = global.I18N.lang === 'fr' ? 'ILLÉGAL · BLOQUÉ !' : 'ILLEGAL · BLOCKED!';
+        eng.damage(5.2, W / 2, 180);
+        if (phaseGauntlet) gauntletStreak = 0;
+      } else if (charge < low) {
+        resultMsg = global.I18N.lang === 'fr' ? 'TROP FAIBLE !' : 'UNDERPOWERED!';
+        eng.damage(3.2, W / 2, 180);
+        if (phaseGauntlet) gauntletStreak = 0;
+      } else {
+        const perfect = (cap - charge) < zoneSize * 0.35;
+        resultMsg = perfect ? 'PERFECT SPEC!' : 'APPROVED!';
+        eng.addStreak(1);
+        eng.addScore(perfect ? 260 : 160, resultMsg, W / 2, 180, perfect ? '#f5b942' : '#a6ff00');
+        eng.heal(perfect ? 1.2 : 0.5, false);
+        eng.burst(W / 2, 230, perfect ? '#f5b942' : '#a6ff00', 18, 200);
+        if (perfect) A.sfxPerfect(); else A.sfxGood();
+
+        if (!phaseGauntlet) {
+          round++;
+          if (round >= 5) {
+            phaseGauntlet = true;
+            gauntletStreak = 0;
+            A.sfxPhase();
+            eng.popup(global.I18N.lang === 'fr' ? 'DÉFI FINAL : 3 DE SUITE !' : 'FINAL: 3 IN A ROW!', W / 2, 120, '#f5b942');
+          }
+        } else {
+          gauntletStreak++;
+          if (gauntletStreak >= 3) {
+            eng.setProgress(1, '3 / 3');
+            eng.winLevel();
+            return;
+          }
+        }
+      }
+
+      const totalSteps = 8;
+      const done = phaseGauntlet ? 5 + gauntletStreak : round;
+      eng.setProgress(done / totalSteps, phaseGauntlet ? `FINAL ${gauntletStreak}/3` : `${round < 3 ? '2022' : '2023'} · ${round}/5`);
+      setupRound();
+    }
+
+    return {
+      touchLayout: { leftRight: false, dpad: false, lanes: false, action: 'touchCharge' },
+      init() {
+        round = 0;
+        gauntletStreak = 0;
+        phaseGauntlet = false;
+        resultMsg = '';
+        setupRound();
+        eng.setProgress(0, '2022 · 0/5');
+      },
+      update(dt) {
+        if (cooldown > 0) {
+          cooldown -= dt;
+          return;
+        }
+        const held = eng.isDown('action') || eng.pointer.down;
+        if (held) {
+          if (!charging) {
+            charging = true;
+            resultMsg = '';
+          }
+          charge = Math.min(1.05, charge + chargeSpeed * dt);
+          if (charge >= 1.05) {
+            charging = false;
+            evaluate();
+          }
+        } else if (charging) {
+          charging = false;
+          evaluate();
+        }
+      },
+      render(ctx) {
+        ctx.fillStyle = '#090f18';
+        ctx.fillRect(0, 0, W, H);
+
+        // Header
+        ctx.fillStyle = phaseGauntlet ? '#f5b942' : '#94a3b8';
+        ctx.font = 'bold 16px Consolas, monospace';
+        ctx.textAlign = 'center';
+        const title = phaseGauntlet
+          ? (global.I18N.lang === 'fr' ? `DÉFI EXPORT 2023 : ${gauntletStreak} / 3 PARFAITS DE SUITE` : `2023 EXPORT GAUNTLET: ${gauntletStreak} / 3 IN A ROW`)
+          : (round < 3 ? '2022 · A800 / H800 COMPLIANCE' : '2023 · CAP LOWERED · H20 COMPLIANCE');
+        ctx.fillText(title, W / 2, 56);
+
+        // Horizontal Power Meter
+        const bx = 130, by = 230, bw = 700, bh = 74;
+        ctx.fillStyle = '#151e2c';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, bh, 12);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Target Green Zone
+        const lowX = bx + (cap - zoneSize) * bw;
+        const capX = bx + cap * bw;
+        ctx.fillStyle = 'rgba(118, 185, 0, 0.34)';
+        ctx.fillRect(lowX, by + 3, capX - lowX, bh - 6);
+
+        // Illegal Red Zone
+        ctx.fillStyle = 'rgba(255, 46, 76, 0.25)';
+        ctx.fillRect(capX, by + 3, bx + bw - capX, bh - 6);
+
+        // Current Charge Bar
+        const fillW = Math.min(1, charge) * bw;
+        ctx.fillStyle = charge > cap ? '#ff2e4c' : charge >= cap - zoneSize ? '#a6ff00' : '#38bdf8';
+        ctx.fillRect(bx + 4, by + 14, Math.max(0, fillW - 4), bh - 28);
+
+        // Red Export Cap Line
+        ctx.strokeStyle = '#ff2e4c';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(capX, by - 18);
+        ctx.lineTo(capX, by + bh + 18);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ff4d6d';
+        ctx.font = 'bold 12px Consolas, monospace';
+        ctx.fillText('EXPORT CAP', capX, by - 26);
+
+        // Jensen on bottom left
+        S.drawDir(ctx, 1, 145, 480, 112);
+
+        // Prompt
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 15px Consolas, monospace';
+        ctx.fillText(
+          charging
+            ? (global.I18N.lang === 'fr' ? 'RELÂCHE DANS LA ZONE VERTE !' : 'RELEASE INSIDE THE GREEN ZONE!')
+            : (global.I18N.lang === 'fr' ? 'MAINTIENS ESPACE / CLIC POUR CHARGER' : 'HOLD SPACE / PRESS TO CHARGE'),
+          W / 2, 365
+        );
+
+        if (resultMsg) {
+          ctx.fillStyle = '#f5b942';
+          ctx.font = 'bold 18px Consolas, monospace';
+          ctx.fillText(resultMsg, W / 2, 415);
+        }
+      }
+    };
+  });
+})(window);
+
+
+// ===== levels-7-12.js =====
+/* Levels 7–12: $1T–$5T + Four Fiction ("What if?") Chapters + 5-Phase Bear Boss */
+(function (global) {
+  'use strict';
+
+  const E = global.ENGINE;
+  const S = global.SPRITES;
+  const A = global.AUDIO;
+
+  // =========================================================
+  // LEVEL 7: 2023 · The Shortage ($1T Demand & Limited Stock)
+  // =========================================================
+  E.registerLevel(7, (eng) => {
+    const W = eng.W, H = eng.H;
+    const LAUNCH_X = W / 2, LAUNCH_Y = 445;
+    let aimAngle, stock, maxStock, reloadT, shots, targets, hits, targetHits, spawnT;
+
+    function fireChip() {
+      if (stock <= 0) {
+        A.sfxBad();
+        return;
+      }
+      stock--;
+      const spd = 640;
+      shots.push({
+        x: LAUNCH_X,
+        y: LAUNCH_Y - 18,
+        vx: Math.cos(aimAngle) * spd,
+        vy: Math.sin(aimAngle) * spd
+      });
+      A.sfxShoot();
+    }
+
+    function spawnTarget() {
+      const tier = Math.floor(Math.random() * 3);
+      const y = 95 + tier * 82;
+      const fromLeft = Math.random() < 0.5;
+      const spd = (105 + tier * 35 + Math.random() * 45) * eng.diff.speedMult;
+      const labels = ['CLOUD', 'AI LAB', 'SUPER', 'DATA'];
+      targets.push({
+        x: fromLeft ? -50 : W + 50,
+        y,
+        vx: fromLeft ? spd : -spd,
+        w: 76 * eng.diff.windowMult,
+        h: 36,
+        label: labels[Math.floor(Math.random() * labels.length)]
+      });
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: 'touchFire' },
+      init() {
+        aimAngle = -Math.PI / 2;
+        maxStock = 6;
+        stock = maxStock;
+        reloadT = 0;
+        shots = [];
+        targets = [];
+        hits = 0;
+        targetHits = eng.save.difficulty === 'easy' ? 11 : eng.save.difficulty === 'hard' ? 16 : 13;
+        spawnT = 0.2;
+        for (let i = 0; i < 3; i++) spawnTarget();
+        eng.setProgress(0, `0 / ${targetHits}`);
+      },
+      update(dt) {
+        if (eng.isDown('left')) aimAngle -= 1.8 * dt;
+        if (eng.isDown('right')) aimAngle += 1.8 * dt;
+        if (eng.pointer.active && eng.pointer.y < 430) {
+          aimAngle = Math.atan2(eng.pointer.y - LAUNCH_Y, eng.pointer.x - LAUNCH_X);
+        }
+        aimAngle = Math.max(-Math.PI + 0.25, Math.min(-0.25, aimAngle));
+
+        if (eng.wasPressed('action') || eng.pointer.justDown) {
+          fireChip();
+        }
+
+        // Slow stock regeneration so economy matters
+        if (stock < maxStock) {
+          reloadT += dt;
+          if (reloadT >= 1.35) {
+            reloadT = 0;
+            stock++;
+          }
+        }
+
+        spawnT -= dt;
+        if (spawnT <= 0 && targets.length < 5) {
+          spawnTarget();
+          spawnT = 1.2;
+        }
+
+        for (let i = targets.length - 1; i >= 0; i--) {
+          const t = targets[i];
+          t.x += t.vx * dt;
+          if ((t.vx > 0 && t.x > W + 70) || (t.vx < 0 && t.x < -70)) {
+            targets.splice(i, 1);
+          }
+        }
+
+        for (let i = shots.length - 1; i >= 0; i--) {
+          const s = shots[i];
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+
+          let hit = false;
+          for (let j = targets.length - 1; j >= 0; j--) {
+            const t = targets[j];
+            if (Math.abs(s.x - t.x) < t.w / 2 + 10 && Math.abs(s.y - t.y) < t.h / 2 + 10) {
+              targets.splice(j, 1);
+              shots.splice(i, 1);
+              hit = true;
+              hits++;
+              stock = Math.min(maxStock, stock + 1); // Refund chip on hit!
+              eng.addStreak(1);
+              eng.addScore(180, 'H100 DELIVERED!', t.x, t.y, '#a6ff00');
+              eng.burst(t.x, t.y, '#a6ff00', 14, 170);
+              A.sfxGood();
+              eng.setProgress(hits / targetHits, `${hits} / ${targetHits}`);
+              if (hits >= targetHits) eng.winLevel();
+              break;
+            }
+          }
+          if (hit) continue;
+
+          if (s.x < -20 || s.x > W + 20 || s.y < -20) {
+            shots.splice(i, 1);
+            // Wasted chip costs days!
+            eng.damage(3.6, LAUNCH_X, 380);
+          }
+        }
+      },
+      render(ctx) {
+        ctx.fillStyle = '#09101a';
+        ctx.fillRect(0, 0, W, H);
+
+        // Aim dotted line
+        ctx.strokeStyle = 'rgba(166, 255, 0, 0.35)';
+        ctx.setLineDash([8, 8]);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(LAUNCH_X, LAUNCH_Y - 18);
+        ctx.lineTo(LAUNCH_X + Math.cos(aimAngle) * 340, LAUNCH_Y - 18 + Math.sin(aimAngle) * 340);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Demand targets
+        for (const t of targets) {
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.roundRect(t.x - t.w / 2, t.y - t.h / 2, t.w, t.h, 8);
+          ctx.fill();
+          ctx.strokeStyle = '#f5b942';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.fillStyle = '#f5b942';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`$ ${t.label}`, t.x, t.y + 4);
+        }
+
+        // Flying H100 chips
+        for (const s of shots) {
+          ctx.fillStyle = '#a6ff00';
+          ctx.fillRect(s.x - 9, s.y - 9, 18, 18);
+          ctx.strokeStyle = '#071000';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(s.x - 9, s.y - 9, 18, 18);
+        }
+
+        // Stock display
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 12px Consolas, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(`H100 STOCK: ${stock}/${maxStock}`, 24, 505);
+        for (let i = 0; i < maxStock; i++) {
+          ctx.fillStyle = i < stock ? '#a6ff00' : 'rgba(255,255,255,0.12)';
+          ctx.fillRect(24 + i * 24, 514, 18, 14);
+        }
+
+        // Jensen at launcher
+        S.drawDir(ctx, 4, LAUNCH_X, 526, 98);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 8: 2025–2026 · The Plates ($5 Trillion)
+  // =========================================================
+  E.registerLevel(8, (eng) => {
+    const W = eng.W, H = eng.H;
+    const LABELS = ['AI', 'CUDA', 'DATA', 'AUTO', 'ROBO', 'CLOUD'];
+    let poles, playerX, targetX, facingLeft, walkT, survived, duration;
+
+    function spinNearest() {
+      let best = null, bestD = 90;
+      for (const p of poles) {
+        const d = Math.abs(p.x - playerX);
+        if (d < bestD) { bestD = d; best = p; }
+      }
+      if (best) {
+        best.spin = Math.min(1, best.spin + 0.52);
+        eng.addStreak(1);
+        eng.addScore(60, 'SPIN!', best.x, 195, '#a6ff00');
+        eng.burst(best.x, 225, '#a6ff00', 10, 140);
+        A.sfxSpin();
+      }
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: 'touchSpin' },
+      init() {
+        const count = eng.save.difficulty === 'hard' ? 6 : 5;
+        poles = [];
+        for (let i = 0; i < count; i++) {
+          const x = 140 + (i / (count - 1)) * (W - 280);
+          poles.push({
+            x,
+            label: LABELS[i],
+            spin: 0.72 + Math.random() * 0.25,
+            drain: (0.095 + Math.random() * 0.045) * eng.diff.speedMult,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+        playerX = W / 2;
+        targetX = null;
+        facingLeft = false;
+        walkT = 0;
+        survived = 0;
+        duration = eng.save.difficulty === 'easy' ? 32 : eng.save.difficulty === 'hard' ? 44 : 38;
+        eng.setProgress(0, `0 / ${duration}s`);
+      },
+      update(dt) {
+        const moveSpd = 540;
+        let vx = 0;
+        if (eng.isDown('left')) { vx -= moveSpd; targetX = null; }
+        if (eng.isDown('right')) { vx += moveSpd; targetX = null; }
+
+        // Direct tap/click on a pole sprints there and spins it!
+        if (eng.pointer.justDown) {
+          let best = poles[0], bestD = 999;
+          for (const p of poles) {
+            const d = Math.abs(p.x - eng.pointer.x);
+            if (d < bestD) { bestD = d; best = p; }
+          }
+          targetX = best.x;
+        }
+
+        if (targetX !== null) {
+          const diff = targetX - playerX;
+          if (Math.abs(diff) < 16) {
+            playerX = targetX;
+            targetX = null;
+            spinNearest();
+          } else {
+            vx = Math.sign(diff) * moveSpd;
+          }
+        }
+
+        playerX = Math.max(80, Math.min(W - 80, playerX + vx * dt));
+        if (Math.abs(vx) > 10) {
+          facingLeft = vx < 0;
+          walkT += dt * 13;
+        }
+
+        if (eng.wasPressed('action') || eng.wasPressed('up')) {
+          spinNearest();
+        }
+
+        // Drain plates
+        for (const p of poles) {
+          p.phase += dt * (4 + p.spin * 14);
+          p.spin -= p.drain * (1 + survived / duration * 0.35) * dt;
+          if (p.spin <= 0) {
+            eng.damage(6.0, p.x, 260);
+            eng.burst(p.x, 260, '#ff4d6d', 18, 220);
+            p.spin = 0.8; // Respawn fresh plate
+          }
+        }
+
+        survived += dt;
+        eng.setProgress(survived / duration, `${Math.floor(survived)} / ${duration}s`);
+        if (survived >= duration) eng.winLevel();
+      },
+      render(ctx) {
+        ctx.fillStyle = '#090e18';
+        ctx.fillRect(0, 0, W, H);
+
+        // Keynote stage spotlight
+        ctx.fillStyle = 'rgba(118,185,0,0.06)';
+        ctx.fillRect(0, 445, W, 95);
+        ctx.fillStyle = '#76b900';
+        ctx.fillRect(0, 445, W, 3);
+
+        ctx.fillStyle = '#f5b942';
+        ctx.font = 'bold 15px Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('OCTOBER 2025 · $5 TRILLION KEYNOTE STAGE', W / 2, 42);
+
+        // Poles & Spinning Plates
+        for (const p of poles) {
+          const wobble = p.spin < 0.45 ? Math.sin(eng.elapsed * 22 + p.phase) * (1 - p.spin) * 18 : 0;
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(p.x, 445);
+          ctx.lineTo(p.x + wobble * 0.5, 225);
+          ctx.stroke();
+
+          // Plate
+          const px = p.x + wobble;
+          const py = 220;
+          const col = p.spin > 0.5 ? '#a6ff00' : p.spin > 0.25 ? '#f5b942' : '#ff2e4c';
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(wobble * 0.025);
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 50, 13, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#071019';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.fillText(p.label, 0, 4);
+          ctx.restore();
+
+          // Spin meter below pole
+          ctx.fillStyle = 'rgba(255,255,255,0.12)';
+          ctx.fillRect(p.x - 32, 462, 64, 8);
+          ctx.fillStyle = col;
+          ctx.fillRect(p.x - 32, 462, 64 * Math.max(0, p.spin), 8);
+        }
+
+        // Jensen running
+        S.drawWalk(ctx, walkT, playerX, 446, 108, facingLeft);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 9: FICTION · Full Light (Spotlight & Rumor Boss)
+  // =========================================================
+  E.registerLevel(9, (eng) => {
+    const W = eng.W, H = eng.H;
+    const COLS = 16, ROWS = 9;
+    const CW = W / COLS, CH = H / ROWS;
+    let px, py, dirIdx, grid, rumors, phaseBoss, boss, invuln;
+
+    function litRatio() {
+      let lit = 0;
+      for (let i = 0; i < grid.length; i++) if (grid[i] > 0.45) lit++;
+      return lit / grid.length;
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: true, lanes: false, action: null },
+      init() {
+        px = W / 2; py = H / 2;
+        dirIdx = 0;
+        grid = new Float32Array(COLS * ROWS);
+        rumors = [];
+        for (let i = 0; i < 4; i++) {
+          rumors.push({
+            x: i % 2 === 0 ? 110 : W - 110,
+            y: i < 2 ? 100 : H - 100,
+            vx: (Math.random() < 0.5 ? 1 : -1) * 115 * eng.diff.speedMult,
+            vy: (Math.random() < 0.5 ? 1 : -1) * 95 * eng.diff.speedMult,
+            r: 20
+          });
+        }
+        phaseBoss = false;
+        boss = { x: W / 2, y: 110, hp: 100, maxHp: 100, r: 42 };
+        invuln = 0;
+        eng.setProgress(0, '0%');
+      },
+      update(dt) {
+        const spd = 290;
+        let dx = 0, dy = 0;
+        if (eng.isDown('left')) dx -= 1;
+        if (eng.isDown('right')) dx += 1;
+        if (eng.isDown('up')) dy -= 1;
+        if (eng.isDown('down')) dy += 1;
+        if (eng.pointer.down) {
+          const pdx = eng.pointer.x - px, pdy = eng.pointer.y - py;
+          const dist = Math.hypot(pdx, pdy);
+          if (dist > 10) { dx = pdx / dist; dy = pdy / dist; }
+        }
+        const len = Math.hypot(dx, dy);
+        if (len > 0) {
+          px += (dx / len) * spd * dt;
+          py += (dy / len) * spd * dt;
+          // Choose 8-dir sprite index
+          const ang = Math.atan2(dy, dx);
+          const sector = Math.round(((ang - Math.PI / 2) / (Math.PI * 2)) * 8);
+          dirIdx = ((sector % 8) + 8) % 8;
+        }
+        px = Math.max(36, Math.min(W - 36, px));
+        py = Math.max(54, Math.min(H - 36, py));
+
+        if (invuln > 0) invuln -= dt;
+
+        // Light up tiles under Jensen
+        const lightR = 118;
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const cx = c * CW + CW / 2, cy = r * CH + CH / 2;
+            const d = Math.hypot(cx - px, cy - py);
+            if (d < lightR) {
+              grid[r * COLS + c] = Math.min(1, grid[r * COLS + c] + dt * 2.8);
+            }
+          }
+        }
+
+        // Rumor wisps bounce & re-darken tiles
+        for (const ru of rumors) {
+          ru.x += ru.vx * dt;
+          ru.y += ru.vy * dt;
+          if (ru.x < 30 || ru.x > W - 30) ru.vx *= -1;
+          if (ru.y < 30 || ru.y > H - 30) ru.vy *= -1;
+          const c = Math.floor(ru.x / CW), r = Math.floor(ru.y / CH);
+          if (c >= 0 && c < COLS && r >= 0 && r < ROWS) {
+            grid[r * COLS + c] = Math.max(0, grid[r * COLS + c] - dt * 1.4);
+          }
+          if (invuln <= 0 && Math.hypot(ru.x - px, ru.y - py) < ru.r + 24) {
+            invuln = 0.9;
+            eng.damage(4.5, px, py - 30);
+          }
+        }
+
+        if (!phaseBoss) {
+          const ratio = litRatio();
+          const goal = 0.72;
+          eng.setProgress(Math.min(0.65, (ratio / goal) * 0.65), `${Math.round((ratio / goal) * 100)}%`);
+          if (ratio >= goal) {
+            phaseBoss = true;
+            A.sfxPhase();
+            eng.flash('#c5a3ff', 0.25);
+            eng.popup(global.I18N.lang === 'fr' ? 'BOSS RUMEUR : GARDE-LE DANS LA LUMIÈRE !' : 'RUMOR BOSS: KEEP IT IN THE LIGHT!', W / 2, 120, '#c5a3ff');
+          }
+        } else {
+          // Boss orbits & drifts toward Jensen
+          const bdx = px - boss.x, bdy = py - boss.y;
+          const bdist = Math.hypot(bdx, bdy) || 1;
+          const bSpd = 128 * eng.diff.speedMult;
+          boss.x += (bdx / bdist) * bSpd * dt + Math.cos(eng.elapsed * 2.4) * 55 * dt;
+          boss.y += (bdy / bdist) * bSpd * dt + Math.sin(eng.elapsed * 2.4) * 55 * dt;
+          boss.x = Math.max(50, Math.min(W - 50, boss.x));
+          boss.y = Math.max(50, Math.min(H - 50, boss.y));
+
+          // Burn Boss HP when inside spotlight ring (radius 155) without touching!
+          if (bdist < 165 && bdist > boss.r + 22) {
+            boss.hp -= 24 * dt;
+            if (Math.random() < 0.3) eng.burst(boss.x, boss.y, '#f5b942', 2, 90);
+          }
+          if (invuln <= 0 && bdist <= boss.r + 22) {
+            invuln = 1.0;
+            eng.damage(5.5, px, py - 30);
+          }
+
+          const bossProg = 1 - Math.max(0, boss.hp / boss.maxHp);
+          eng.setProgress(0.65 + bossProg * 0.35, `BOSS ${Math.max(0, Math.ceil(boss.hp))}%`);
+          if (boss.hp <= 0) {
+            eng.addScore(600, 'FULL LIGHT!', boss.x, boss.y, '#f5b942');
+            eng.winLevel();
+          }
+        }
+      },
+      render(ctx) {
+        // Illuminated floor tiles
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const v = grid[r * COLS + c];
+            const lum = Math.round(12 + v * 36);
+            ctx.fillStyle = `rgb(${lum}, ${lum + Math.round(v * 18)}, ${lum + Math.round(v * 28)})`;
+            ctx.fillRect(c * CW, r * CH, CW + 1, CH + 1);
+          }
+        }
+
+        // Spotlight cone around Jensen
+        const lightR = phaseBoss ? 165 : 122;
+        const grad = ctx.createRadialGradient(px, py - 15, 18, px, py - 15, lightR);
+        grad.addColorStop(0, 'rgba(255, 243, 176, 0.34)');
+        grad.addColorStop(1, 'rgba(255, 243, 176, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(px, py - 15, lightR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rumor wisps
+        for (const ru of rumors) {
+          ctx.fillStyle = '#7c3aed';
+          ctx.beginPath();
+          ctx.arc(ru.x, ru.y, ru.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#e9d5ff';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('?', ru.x, ru.y + 4);
+        }
+
+        // Rumor Boss
+        if (phaseBoss) {
+          ctx.fillStyle = '#4c1d95';
+          ctx.beginPath();
+          ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#c5a3ff';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 13px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('RUMOR', boss.x, boss.y + 4);
+
+          // Boss HP bar
+          ctx.fillStyle = 'rgba(0,0,0,0.6)';
+          ctx.fillRect(boss.x - 45, boss.y - 58, 90, 8);
+          ctx.fillStyle = '#c5a3ff';
+          ctx.fillRect(boss.x - 45, boss.y - 58, 90 * Math.max(0, boss.hp / boss.maxHp), 8);
+        }
+
+        // Jensen
+        const alpha = invuln > 0 && Math.floor(eng.elapsed * 20) % 2 === 0 ? 0.4 : 1;
+        S.drawDir(ctx, dirIdx, px, py + 32, 76, false, alpha);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 10: FICTION · The Questions (3-Lane Rhythm/Reflex)
+  // =========================================================
+  E.registerLevel(10, (eng) => {
+    const W = eng.W, H = eng.H;
+    const LANE_X = [250, 480, 710];
+    const HIT_Y = 430;
+    let notes, totalNotes, spawned, resolved, spawnT, laneFlash;
+
+    function triggerLane(lane) {
+      laneFlash[lane] = 0.16;
+      const win = 54 * eng.diff.windowMult;
+      let hitIdx = -1, bestDist = win;
+      for (let i = 0; i < notes.length; i++) {
+        const n = notes[i];
+        if (n.lane === lane) {
+          const d = Math.abs(n.y - HIT_Y);
+          if (d < bestDist) { bestDist = d; hitIdx = i; }
+        }
+      }
+      if (hitIdx !== -1) {
+        const n = notes.splice(hitIdx, 1)[0];
+        resolved++;
+        const perfect = bestDist < win * 0.42;
+        eng.addStreak(1);
+        eng.addScore(perfect ? 200 : 120, perfect ? 'PERFECT!' : 'ANSWERED', LANE_X[lane], HIT_Y - 26, perfect ? '#f5b942' : '#c5a3ff');
+        eng.burst(LANE_X[lane], HIT_Y, perfect ? '#f5b942' : '#c5a3ff', 14, 170);
+        if (perfect) A.sfxPerfect(); else A.sfxGood();
+        eng.setProgress(resolved / totalNotes, `${resolved} / ${totalNotes}`);
+        if (resolved >= totalNotes) eng.winLevel();
+      } else {
+        eng.damage(2.5, LANE_X[lane], HIT_Y - 10);
+      }
+    }
+
+    return {
+      touchLayout: { leftRight: false, dpad: false, lanes: true, action: null },
+      init() {
+        notes = [];
+        totalNotes = eng.save.difficulty === 'easy' ? 22 : eng.save.difficulty === 'hard' ? 34 : 28;
+        spawned = 0;
+        resolved = 0;
+        spawnT = 0.6;
+        laneFlash = [0, 0, 0];
+        eng.setProgress(0, `0 / ${totalNotes}`);
+      },
+      update(dt) {
+        for (let i = 0; i < 3; i++) if (laneFlash[i] > 0) laneFlash[i] -= dt;
+
+        // Inputs: 1/2/3, Left/Down/Right, or direct click on a lane
+        if (eng.wasPressed('lane1') || eng.wasPressed('left')) triggerLane(0);
+        if (eng.wasPressed('lane2') || eng.wasPressed('down')) triggerLane(1);
+        if (eng.wasPressed('lane3') || eng.wasPressed('right')) triggerLane(2);
+        if (eng.pointer.justDown) {
+          const lane = eng.pointer.x < W / 3 ? 0 : eng.pointer.x < (W * 2) / 3 ? 1 : 2;
+          triggerLane(lane);
+        }
+
+        // Spawn question cards
+        if (spawned < totalNotes) {
+          spawnT -= dt;
+          if (spawnT <= 0) {
+            const lane = Math.floor(Math.random() * 3);
+            notes.push({
+              lane,
+              y: -30,
+              vy: (245 + (spawned / totalNotes) * 115) * eng.diff.speedMult
+            });
+            spawned++;
+            spawnT = Math.max(0.38, (0.82 - (spawned / totalNotes) * 0.25) / eng.diff.speedMult);
+          }
+        }
+
+        // Move & check misses
+        for (let i = notes.length - 1; i >= 0; i--) {
+          const n = notes[i];
+          n.y += n.vy * dt;
+          if (n.y > HIT_Y + 62) {
+            notes.splice(i, 1);
+            resolved++;
+            eng.damage(3.6, LANE_X[n.lane], HIT_Y);
+            eng.setProgress(resolved / totalNotes, `${resolved} / ${totalNotes}`);
+            if (resolved >= totalNotes && eng.days > 0) eng.winLevel();
+          }
+        }
+      },
+      render(ctx) {
+        ctx.fillStyle = '#0b0916';
+        ctx.fillRect(0, 0, W, H);
+
+        // 3 Committee Lanes
+        const titles = ['HOUSE COMM. I', 'HOUSE COMM. II', 'HOUSE COMM. III'];
+        const keys = ['[1 / ←]', '[2 / ↓]', '[3 / →]'];
+        for (let i = 0; i < 3; i++) {
+          const lx = LANE_X[i];
+          ctx.fillStyle = laneFlash[i] > 0 ? 'rgba(197,163,255,0.22)' : 'rgba(255,255,255,0.03)';
+          ctx.fillRect(lx - 88, 36, 176, 460);
+          ctx.strokeStyle = 'rgba(157,107,255,0.35)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(lx - 88, 36, 176, 460);
+
+          ctx.fillStyle = '#c5a3ff';
+          ctx.font = 'bold 13px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(titles[i], lx, 60);
+
+          // Strike zone box
+          ctx.fillStyle = laneFlash[i] > 0 ? '#c5a3ff' : 'rgba(157,107,255,0.22)';
+          ctx.fillRect(lx - 76, HIT_Y - 22, 152, 44);
+          ctx.strokeStyle = '#c5a3ff';
+          ctx.strokeRect(lx - 76, HIT_Y - 22, 152, 44);
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.fillText(keys[i], lx, HIT_Y + 4);
+        }
+
+        // Question cards
+        for (const n of notes) {
+          const lx = LANE_X[n.lane];
+          ctx.fillStyle = '#f5b942';
+          ctx.beginPath();
+          ctx.roundRect(lx - 66, n.y - 18, 132, 36, 8);
+          ctx.fill();
+          ctx.fillStyle = '#071019';
+          ctx.font = 'bold 13px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('QUESTION ?', lx, n.y + 5);
+        }
+
+        // Jensen on far left
+        S.drawDir(ctx, 1, 74, 480, 108);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 11: FICTION · The Board (10 Directors Breakout)
+  // =========================================================
+  E.registerLevel(11, (eng) => {
+    const W = eng.W, H = eng.H;
+    let paddleX, ball, seats, holdTimer;
+
+    function launchBall() {
+      const spd = 390 * eng.diff.speedMult;
+      const ang = -Math.PI / 2 + (Math.random() - 0.5) * 0.7;
+      ball = {
+        x: paddleX,
+        y: 432,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd,
+        r: 11
+      };
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: null },
+      init() {
+        paddleX = W / 2;
+        holdTimer = 0;
+        seats = [];
+        // 10 Director seats arranged in 2 clean curved rows (5 + 5)
+        for (let i = 0; i < 10; i++) {
+          const row = i < 5 ? 0 : 1;
+          const col = i % 5;
+          seats.push({
+            x: 190 + col * 145,
+            y: 96 + row * 72 + (col === 0 || col === 4 ? 14 : 0),
+            w: 108,
+            h: 42,
+            voteTimer: 0,
+            maxVote: 15.5 * eng.diff.windowMult
+          });
+        }
+        launchBall();
+        eng.setProgress(0, '0 / 6 AYE');
+      },
+      update(dt) {
+        const moveSpd = 580;
+        if (eng.isDown('left')) paddleX -= moveSpd * dt;
+        if (eng.isDown('right')) paddleX += moveSpd * dt;
+        if (eng.pointer.down) {
+          paddleX += (eng.pointer.x - paddleX) * Math.min(1, dt * 18);
+        }
+        const padW = 78 * eng.diff.windowMult;
+        paddleX = Math.max(padW + 14, Math.min(W - padW - 14, paddleX));
+
+        // Update vote timers
+        let activeVotes = 0;
+        for (const s of seats) {
+          if (s.voteTimer > 0) {
+            s.voteTimer = Math.max(0, s.voteTimer - dt);
+            if (s.voteTimer > 0) activeVotes++;
+          }
+        }
+
+        // Move ball (Open Letter)
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+
+        if (ball.x < ball.r + 12) { ball.x = ball.r + 12; ball.vx = Math.abs(ball.vx); A.sfxHit(); }
+        if (ball.x > W - ball.r - 12) { ball.x = W - ball.r - 12; ball.vx = -Math.abs(ball.vx); A.sfxHit(); }
+        if (ball.y < ball.r + 12) { ball.y = ball.r + 12; ball.vy = Math.abs(ball.vy); A.sfxHit(); }
+
+        // Paddle bounce
+        if (ball.vy > 0 && ball.y >= 434 && ball.y <= 462 && Math.abs(ball.x - paddleX) <= padW + ball.r) {
+          ball.y = 433;
+          const off = (ball.x - paddleX) / padW;
+          const spd = Math.min(540, Math.hypot(ball.vx, ball.vy) * 1.015);
+          ball.vx = off * spd * 0.82;
+          ball.vy = -Math.sqrt(Math.max(40000, spd * spd - ball.vx * ball.vx));
+          A.sfxHit();
+        }
+
+        // Seat collisions
+        for (const s of seats) {
+          if (ball.x + ball.r > s.x - s.w / 2 && ball.x - ball.r < s.x + s.w / 2 &&
+              ball.y + ball.r > s.y - s.h / 2 && ball.y - ball.r < s.y + s.h / 2) {
+            const dx = (ball.x - s.x) / (s.w / 2);
+            const dy = (ball.y - s.y) / (s.h / 2);
+            if (Math.abs(dx) > Math.abs(dy)) ball.vx = Math.sign(dx) * Math.abs(ball.vx);
+            else ball.vy = Math.sign(dy) * Math.abs(ball.vy);
+
+            const wasOff = s.voteTimer <= 0;
+            s.voteTimer = s.maxVote;
+            eng.addStreak(1);
+            eng.addScore(wasOff ? 160 : 70, 'AYE!', s.x, s.y, '#a6ff00');
+            eng.burst(s.x, s.y, '#a6ff00', 10, 140);
+            A.sfxGood();
+            break;
+          }
+        }
+
+        // Ball dropped
+        if (ball.y > H + 20) {
+          eng.damage(4.5, paddleX, 450);
+          launchBall();
+        }
+
+        // Win if >= 6 of 10 seats held simultaneously for 1.8s
+        if (activeVotes >= 6) {
+          holdTimer += dt;
+          eng.setProgress(0.7 + (holdTimer / 1.8) * 0.3, `MAJORITY ${activeVotes}/10!`);
+          if (holdTimer >= 1.8) eng.winLevel();
+        } else {
+          holdTimer = 0;
+          eng.setProgress((activeVotes / 6) * 0.7, `${activeVotes} / 6 AYE`);
+        }
+      },
+      render(ctx) {
+        ctx.fillStyle = '#0c0a18';
+        ctx.fillRect(0, 0, W, H);
+
+        // Boardroom table backdrop
+        ctx.fillStyle = 'rgba(157,107,255,0.06)';
+        ctx.beginPath();
+        ctx.ellipse(W / 2, 160, 390, 115, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#c5a3ff';
+        ctx.font = 'bold 13px Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('10 DIRECTORS · HOLD 6/10 MAJORITY · 170K+ PETITION', W / 2, 34);
+
+        // Director Seats
+        for (let i = 0; i < seats.length; i++) {
+          const s = seats[i];
+          const ratio = s.voteTimer / s.maxVote;
+          const lit = ratio > 0;
+          ctx.fillStyle = lit ? 'rgba(118, 185, 0, 0.28)' : '#1a1829';
+          ctx.beginPath();
+          ctx.roundRect(s.x - s.w / 2, s.y - s.h / 2, s.w, s.h, 8);
+          ctx.fill();
+          ctx.strokeStyle = lit ? '#a6ff00' : 'rgba(255,255,255,0.18)';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          ctx.fillStyle = lit ? '#a6ff00' : '#94a3b8';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.fillText(lit ? `DIR #${i + 1} · AYE` : `DIR #${i + 1}`, s.x, s.y + 3);
+
+          if (lit) {
+            ctx.fillStyle = '#a6ff00';
+            ctx.fillRect(s.x - s.w / 2 + 6, s.y + s.h / 2 - 7, (s.w - 12) * ratio, 4);
+          }
+        }
+
+        // Open Letter Ball
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#071019';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('✉', ball.x, ball.y + 4);
+
+        // Paddle
+        const padW = 78 * eng.diff.windowMult;
+        ctx.fillStyle = '#c5a3ff';
+        ctx.beginPath();
+        ctx.roundRect(paddleX - padW, 444, padW * 2, 16, 8);
+        ctx.fill();
+
+        S.drawDir(ctx, 4, paddleX, 532, 86);
+      }
+    };
+  });
+
+  // =========================================================
+  // LEVEL 12: FICTION · The Bear (5-Phase Final Boss)
+  // =========================================================
+  E.registerLevel(12, (eng) => {
+    const W = eng.W, H = eng.H;
+    const FLOOR_Y = 460;
+    let px, py, vy, jumpsLeft, facingLeft, walkT, invuln, fireT, rapidT;
+    let boss, phase, shots, hazards, candles, atkT, candleT;
+
+    function getPhase(hpRatio) {
+      if (hpRatio > 0.8) return 1;
+      if (hpRatio > 0.6) return 2;
+      if (hpRatio > 0.4) return 3;
+      if (hpRatio > 0.2) return 4;
+      return 5;
+    }
+
+    function spawnAttack() {
+      const spd = eng.diff.speedMult;
+      // Phase 1+: Ground Red Shockwave (jump over!)
+      if (phase === 1 || Math.random() < 0.42) {
+        hazards.push({
+          kind: 'wave',
+          x: boss.x - 70,
+          y: FLOOR_Y - 26,
+          vx: -(330 + phase * 32) * spd,
+          vy: 0,
+          w: 44,
+          h: 28
+        });
+      }
+      // Phase 2+: Falling Red Downgrade Candles
+      if (phase >= 2 && Math.random() < 0.6) {
+        const count = phase >= 5 ? 3 : 2;
+        for (let i = 0; i < count; i++) {
+          hazards.push({
+            kind: 'drop',
+            x: 80 + Math.random() * 560,
+            y: -25 - i * 40,
+            vx: 0,
+            vy: (245 + phase * 22) * spd,
+            w: 22,
+            h: 46
+          });
+        }
+      }
+      // Phase 3+: Aimed Bear Claw / Market Crash Orb
+      if (phase >= 3 && Math.random() < 0.65) {
+        const ang = Math.atan2((py - 40) - (boss.y - 80), px - (boss.x - 40));
+        const s = (290 + phase * 24) * spd;
+        hazards.push({
+          kind: 'orb',
+          x: boss.x - 50,
+          y: boss.y - 80,
+          vx: Math.cos(ang) * s,
+          vy: Math.sin(ang) * s,
+          w: 26,
+          h: 26
+        });
+      }
+      // Phase 4+: Sine-wave Volatility Laser
+      if (phase >= 4 && Math.random() < 0.55) {
+        hazards.push({
+          kind: 'sine',
+          x: boss.x - 60,
+          y: 250 + Math.random() * 120,
+          baseY: 250 + Math.random() * 120,
+          t: 0,
+          vx: -280 * spd,
+          vy: 0,
+          w: 30,
+          h: 20
+        });
+      }
+    }
+
+    return {
+      touchLayout: { leftRight: true, dpad: false, lanes: false, action: 'touchJump' },
+      init() {
+        px = 180; py = FLOOR_Y; vy = 0; jumpsLeft = 2;
+        facingLeft = false; walkT = 0; invuln = 0; fireT = 0; rapidT = 0;
+        boss = { x: 790, y: FLOOR_Y, hp: 500, maxHp: 500, hitFlash: 0 };
+        phase = 1;
+        shots = [];
+        hazards = [];
+        candles = [];
+        atkT = 1.0;
+        candleT = 4.2;
+        eng.setProgress(0, 'PHASE 1/5');
+      },
+      update(dt) {
+        // Player movement
+        const moveSpd = 390;
+        let vx = 0;
+        if (eng.isDown('left')) vx -= moveSpd;
+        if (eng.isDown('right')) vx += moveSpd;
+        px = Math.max(48, Math.min(620, px + vx * dt));
+        if (Math.abs(vx) > 10) {
+          facingLeft = vx < 0;
+          walkT += dt * 12;
+        }
+
+        // Jump + Double Jump
+        if (eng.wasPressed('up') || eng.wasPressed('action') || (eng.pointer.justDown && eng.pointer.y < H * 0.78)) {
+          if (jumpsLeft > 0) {
+            vy = jumpsLeft === 2 ? -590 : -520;
+            jumpsLeft--;
+            A.sfxJump();
+          }
+        }
+        vy += 1620 * dt;
+        py += vy * dt;
+        if (py >= FLOOR_Y) { py = FLOOR_Y; vy = 0; jumpsLeft = 2; }
+
+        if (invuln > 0) invuln -= dt;
+        if (rapidT > 0) rapidT -= dt;
+        if (boss.hitFlash > 0) boss.hitFlash -= dt;
+
+        // Auto-fire green silicon pulses toward the Bear!
+        fireT -= dt;
+        if (fireT <= 0) {
+          shots.push({ x: px + 24, y: py - 52, vx: 680, vy: 0, dmg: rapidT > 0 ? 13 : 9 });
+          fireT = rapidT > 0 ? 0.14 : 0.24;
+          A.sfxShoot();
+        }
+
+        // Boss attacks
+        atkT -= dt;
+        if (atkT <= 0) {
+          spawnAttack();
+          atkT = Math.max(0.55, (1.55 - phase * 0.18) / eng.diff.speedMult);
+        }
+
+        // Good Green Candles (heal + rapid fire powerup!)
+        candleT -= dt;
+        if (candleT <= 0) {
+          candles.push({ x: 90 + Math.random() * 480, y: -20, vy: 135 });
+          candleT = 5.4;
+        }
+
+        // Update player shots
+        for (let i = shots.length - 1; i >= 0; i--) {
+          const s = shots[i];
+          s.x += s.vx * dt;
+          if (s.x > boss.x - 80 && s.y > boss.y - 230 && s.y < boss.y) {
+            shots.splice(i, 1);
+            boss.hp -= s.dmg;
+            boss.hitFlash = 0.08;
+            eng.addScore(15);
+            eng.burst(s.x, s.y, '#a6ff00', 4, 110);
+
+            const newPhase = getPhase(boss.hp / boss.maxHp);
+            if (newPhase > phase && boss.hp > 0) {
+              phase = newPhase;
+              A.sfxPhase();
+              eng.freeze(0.06);
+              eng.shake(0.3, 10);
+              eng.flash('#c5a3ff', 0.25);
+              eng.popup(`PHASE ${phase} / 5!`, W / 2, 160, '#f5b942');
+            }
+            eng.setProgress(1 - Math.max(0, boss.hp / boss.maxHp), `PHASE ${phase}/5`);
+            if (boss.hp <= 0) {
+              eng.burst(boss.x, boss.y - 110, '#f5b942', 45, 320);
+              eng.addScore(1500, 'BEAR DEFEATED!', boss.x - 60, 180, '#f5b942');
+              eng.winLevel();
+              return;
+            }
+          } else if (s.x > W + 30) {
+            shots.splice(i, 1);
+          }
+        }
+
+        // Update hazards
+        const pBox = { x: px - 18, y: py - 84, w: 36, h: 84 };
+        for (let i = hazards.length - 1; i >= 0; i--) {
+          const h = hazards[i];
+          if (h.kind === 'sine') {
+            h.t += dt * 7;
+            h.y = h.baseY + Math.sin(h.t) * 65;
+          }
+          h.x += h.vx * dt;
+          h.y += h.vy * dt;
+          if (h.x < -60 || h.y > H + 60) { hazards.splice(i, 1); continue; }
+
+          if (invuln <= 0 &&
+              pBox.x < h.x + h.w / 2 && pBox.x + pBox.w > h.x - h.w / 2 &&
+              pBox.y < h.y + h.h / 2 && pBox.y + pBox.h > h.y - h.h / 2) {
+            hazards.splice(i, 1);
+            invuln = 0.95;
+            eng.damage(4.5, px, py - 50);
+          }
+        }
+
+        // Update green candles
+        for (let i = candles.length - 1; i >= 0; i--) {
+          const c = candles[i];
+          c.y += c.vy * dt;
+          if (c.y > FLOOR_Y) { candles.splice(i, 1); continue; }
+          if (Math.abs(c.x - px) < 34 && Math.abs(c.y - (py - 44)) < 50) {
+            candles.splice(i, 1);
+            eng.heal(2.2, true, c.x, c.y);
+            rapidT = 4.5;
+            eng.addStreak(1);
+            eng.addScore(200, 'BULL CANDLE!', c.x, c.y - 24, '#a6ff00');
+            eng.burst(c.x, c.y, '#a6ff00', 14, 160);
+            A.sfxPerfect();
+          }
+        }
+      },
+      render(ctx) {
+        // Dark stock-chart arena
+        ctx.fillStyle = '#090712';
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = 'rgba(157,107,255,0.09)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < W; x += 48) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+        for (let y = 0; y < H; y += 48) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+        // Floor
+        ctx.fillStyle = '#141024';
+        ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
+        ctx.fillStyle = '#ff2e4c';
+        ctx.fillRect(0, FLOOR_Y, W, 3);
+
+        // Bear Boss (procedural pixel-styled mechanical market bear)
+        const bx = boss.x, by = boss.y - 115 + Math.sin(eng.elapsed * (3 + phase)) * 10;
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.fillStyle = boss.hitFlash > 0 ? '#ffffff' : phase >= 5 ? '#991b1b' : '#451a2b';
+        ctx.beginPath();
+        ctx.roundRect(-84, -100, 168, 200, 22);
+        ctx.fill();
+        ctx.strokeStyle = phase >= 4 ? '#f5b942' : '#ff2e4c';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Bear Ears
+        ctx.fillStyle = '#5c1d2e';
+        ctx.beginPath(); ctx.arc(-62, -104, 24, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(62, -104, 24, 0, Math.PI * 2); ctx.fill();
+
+        // Glowing Red Eyes
+        ctx.fillStyle = '#ff2e4c';
+        ctx.fillRect(-44, -46, 26, 14);
+        ctx.fillRect(18, -46, 26, 14);
+
+        // Snout & Bear Market Chart Teeth
+        ctx.fillStyle = '#1f0d16';
+        ctx.fillRect(-52, 8, 104, 42);
+        ctx.strokeStyle = '#ff4d6d';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-46, 22); ctx.lineTo(-22, 36); ctx.lineTo(0, 18); ctx.lineTo(24, 40); ctx.lineTo(46, 28);
+        ctx.stroke();
+        ctx.restore();
+
+        // Boss 5-Phase HP Bar at top
+        const barW = 460, barX = (W - barW) / 2;
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillRect(barX, 20, barW, 18);
+        ctx.fillStyle = '#ff2e4c';
+        ctx.fillRect(barX, 20, barW * Math.max(0, boss.hp / boss.maxHp), 18);
+        // Phase ticks
+        ctx.strokeStyle = '#090712';
+        ctx.lineWidth = 2;
+        for (let i = 1; i < 5; i++) {
+          ctx.beginPath();
+          ctx.moveTo(barX + (barW * i) / 5, 20);
+          ctx.lineTo(barX + (barW * i) / 5, 38);
+          ctx.stroke();
+        }
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`MARKET BEAR · PHASE ${phase} / 5`, W / 2, 52);
+
+        // Green Bull Candles
+        for (const c of candles) {
+          ctx.strokeStyle = '#a6ff00';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(c.x, c.y - 24); ctx.lineTo(c.x, c.y + 24); ctx.stroke();
+          ctx.fillStyle = '#76b900';
+          ctx.fillRect(c.x - 9, c.y - 14, 18, 28);
+        }
+
+        // Player shots
+        for (const s of shots) {
+          ctx.fillStyle = rapidT > 0 ? '#f5b942' : '#a6ff00';
+          ctx.fillRect(s.x - 10, s.y - 4, 20, 8);
+        }
+
+        // Hazards
+        for (const h of hazards) {
+          ctx.fillStyle = h.kind === 'sine' ? '#f59e0b' : '#ff2e4c';
+          ctx.beginPath();
+          ctx.roundRect(h.x - h.w / 2, h.y - h.h / 2, h.w, h.h, 6);
+          ctx.fill();
+        }
+
+        // Jensen
+        const alpha = invuln > 0 && Math.floor(eng.elapsed * 20) % 2 === 0 ? 0.35 : 1;
+        S.drawWalk(ctx, walkT, px, py, 94, facingLeft, alpha);
+        if (rapidT > 0) {
+          ctx.strokeStyle = '#f5b942';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(px, py - 46, 48, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+    };
+  });
+})(window);
+
+
+// ===== main.js =====
+/* UI State Machine, Bilingual Binding, Touch Controls, Finale Fireworks */
+(function (global) {
+  'use strict';
+
+  const E = global.ENGINE;
+  const I = global.I18N;
+  const S = global.SPRITES;
+  const A = global.AUDIO;
+
+  const $ = (id) => document.getElementById(id);
+
+  let currentScreen = 'title';
+  let pendingLevelId = 1;
+  let titleTapCount = 0;
+  let titleTapTimer = null;
+  let finaleRaf = null;
+  let finaleParticles = [];
+
+  const SCREENS = ['title', 'levels', 'intro', 'pause', 'win', 'lose', 'finale', 'closing'];
+
+  function showScreen(name) {
+    currentScreen = name;
+    stopFinaleAnim();
+
+    const overlay = $('overlay-layer');
+    if (!name) {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('transparent-bg');
+      $('hud').classList.remove('hidden');
+      updateTouchVisibility();
+      return;
+    }
+
+    overlay.classList.remove('hidden');
+    overlay.classList.toggle('transparent-bg', name === 'finale');
+    SCREENS.forEach((s) => $(`screen-${s}`).classList.toggle('hidden', s !== name));
+
+    if (name === 'title' || name === 'levels' || name === 'closing' || name === 'finale') {
+      $('hud').classList.add('hidden');
+      $('touch-controls').classList.add('hidden');
+    }
+
+    if (name === 'title') refreshTitle();
+    if (name === 'levels') renderLevelGrid();
+    if (name === 'intro') renderIntroCard(pendingLevelId);
+    if (name === 'finale') startFinaleAnim();
+  }
+
+  function applyTranslations() {
+    I.lang = E.save.lang;
+    document.documentElement.lang = I.lang;
+
+    $('t-eyebrow').textContent = I.t('eyebrow');
+    $('t-main-title').textContent = I.t('mainTitle');
+    $('t-subtitle').textContent = I.t('subtitle');
+    $('t-diff-label').textContent = I.t('diffLabel');
+    $('diff-easy').textContent = I.t('easy');
+    $('diff-medium').textContent = I.t('medium');
+    $('diff-hard').textContent = I.t('hard');
+    $('pdiff-easy').textContent = I.t('easy');
+    $('pdiff-medium').textContent = I.t('medium');
+    $('pdiff-hard').textContent = I.t('hard');
+    $('btn-open-levels').textContent = I.t('chooseLevel');
+    $('t-disclaimer').textContent = I.t('disclaimer');
+
+    $('t-select-title').textContent = I.t('selectTitle');
+    $('btn-levels-back').textContent = I.t('back');
+    $('t-sec-history').textContent = I.t('secHistory');
+    $('t-sec-fiction').textContent = I.t('secFiction');
+    $('btn-reset-progress').textContent = I.t('resetProgress');
+    $('btn-view-closing').textContent = I.t('viewClosing');
+
+    $('hud-days-label').textContent = I.t('daysLabel');
+    $('btn-hud-lang').textContent = I.lang.toUpperCase();
+
+    $('intro-howto-tag').textContent = I.t('howtoTag');
+    $('btn-start-level').textContent = I.t('startLevel');
+    $('btn-intro-back').textContent = I.t('levelsBtn');
+
+    $('t-pause-title').textContent = I.t('pauseTitle');
+    $('t-set-diff').textContent = I.t('setDiff');
+    $('t-set-motion').textContent = I.t('setMotion');
+    $('t-set-audio').textContent = I.t('setAudio');
+    $('t-set-lang').textContent = I.t('setLang');
+    $('btn-resume').textContent = I.t('resume');
+    $('btn-pause-restart').textContent = I.t('restartLevel');
+    $('btn-pause-quit').textContent = I.t('quitMenu');
+    $('t-quit-confirm-msg').textContent = I.t('quitConfirmMsg');
+    $('btn-quit-yes').textContent = I.t('quitYes');
+    $('btn-quit-no').textContent = I.t('quitNo');
+
+    $('t-win-badge').textContent = I.t('winBadge');
+    $('t-stat-days').textContent = I.t('statDays');
+    $('t-stat-streak').textContent = I.t('statStreak');
+    $('t-stat-score').textContent = I.t('statScore');
+    $('btn-win-replay').textContent = I.t('replay');
+    $('btn-win-levels').textContent = I.t('levelsBtn');
+
+    $('t-lose-badge').textContent = I.t('loseBadge');
+    $('t-lose-title').textContent = I.t('loseTitle');
+    $('lose-sub').textContent = I.t('loseSub');
+    $('btn-retry').textContent = I.t('retry');
+    $('btn-lose-levels').textContent = I.t('levelsBtn');
+
+    $('t-finale-fiction').textContent = I.t('finaleFiction');
+    $('t-finale-title').textContent = I.t('finaleTitle');
+    $('t-finale-sub').textContent = I.t('finaleSub');
+    $('t-fin-score').textContent = I.t('finScore');
+    $('t-fin-stars').textContent = I.t('finStars');
+    $('btn-to-closing').textContent = I.t('toClosing');
+
+    $('t-closing-eyebrow').textContent = I.t('closingEyebrow');
+    $('t-closing-title').textContent = I.t('closingTitle');
+    $('t-closing-p1').textContent = I.t('closingP1');
+    $('t-closing-p2').textContent = I.t('closingP2');
+    $('t-closing-disclaimer').textContent = I.t('closingDisclaimer');
+    $('btn-closing-menu').textContent = I.t('mainMenu');
+    $('btn-closing-levels').textContent = I.t('chooseLevel');
+
+    refreshSettingsUI();
+    if (currentScreen === 'title') refreshTitle();
+    if (currentScreen === 'levels') renderLevelGrid();
+    if (currentScreen === 'intro') renderIntroCard(pendingLevelId);
+  }
+
+  function refreshSettingsUI() {
+    document.querySelectorAll('.diff-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.diff === E.save.difficulty);
+    });
+    const muteIcon = E.save.muted ? '🔇' : '🔊';
+    $('btn-title-mute').textContent = muteIcon;
+    $('btn-hud-mute').textContent = muteIcon;
+    $('btn-pause-mute').textContent = E.save.muted ? I.t('off') : I.t('on');
+
+    const rm = E.isReducedMotion();
+    $('btn-title-motion').textContent = rm ? '◎' : '✨';
+    $('btn-pause-motion').textContent = rm ? I.t('on') : I.t('off');
+    $('badge-god-mode').classList.toggle('hidden', !E.godMode);
+  }
+
+  function refreshTitle() {
+    const nextLvl = Math.min(12, E.save.unlocked || 1);
+    $('btn-play-continue').textContent = I.t('playContinue', nextLvl);
+    $('t-best-score').textContent = I.t('bestScore', E.getTotalScore());
+    $('t-total-stars').textContent = I.t('totalStars', E.getTotalStars());
+
+    const pCanvas = $('title-portrait');
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    S.drawPortrait(pCtx, 4, 4, pCanvas.width - 8, pCanvas.height - 8);
+  }
+
+  function renderLevelGrid() {
+    const gridReal = $('levels-grid-real');
+    const gridFic = $('levels-grid-fiction');
+    gridReal.innerHTML = '';
+    gridFic.innerHTML = '';
+
+    I.LEVELS.forEach((lvl) => {
+      const unlocked = E.godMode || lvl.id <= (E.save.unlocked || 1);
+      const stars = E.save.stars[lvl.id] || 0;
+      const tile = document.createElement('button');
+      tile.className = `level-tile${lvl.fiction ? ' fiction' : ''}${unlocked ? '' : ' locked'}`;
+      tile.disabled = !unlocked;
+      tile.innerHTML = `
+        <div class="tile-top">
+          <span>${String(lvl.id).padStart(2, '0')}</span>
+          <span>${lvl.year[I.lang]}</span>
+        </div>
+        <div class="tile-title">${lvl.title[I.lang]}</div>
+        <div class="tile-stars">${unlocked ? ('★'.repeat(stars) + '☆'.repeat(3 - stars)) : '🔒'}</div>
+      `;
+      tile.addEventListener('click', () => {
+        A.sfxClick();
+        pendingLevelId = lvl.id;
+        showScreen('intro');
+      });
+      (lvl.fiction ? gridFic : gridReal).appendChild(tile);
+    });
+  }
+
+  function renderIntroCard(id) {
+    const lvl = I.level(id);
+    if (!lvl) return;
+    $('screen-intro').classList.toggle('fiction-card', lvl.fiction);
+    $('intro-year').textContent = lvl.year[I.lang];
+    $('intro-fiction-pill').classList.toggle('hidden', !lvl.fiction);
+    $('intro-fiction-pill').textContent = I.t('fictionPill');
+    $('intro-title').textContent = `${String(lvl.id).padStart(2, '0')} · ${lvl.title[I.lang]}`;
+    $('intro-fact-tag').textContent = lvl.fiction ? I.t('fictionFactTag') : I.t('factTag');
+    $('intro-fact').textContent = lvl.fact[I.lang];
+    $('intro-howto').textContent = lvl.howto[I.lang];
+    $('intro-tip').textContent = E.inputMode === 'touch' ? lvl.tipTouch[I.lang] : lvl.tipKey[I.lang];
+  }
+
+  function updateTouchVisibility() {
+    const tc = $('touch-controls');
+    const isNarrowOrTouch = E.inputMode === 'touch' || global.innerWidth <= 820;
+    if (!E.running || E.paused || !isNarrowOrTouch || !E.activeLevel) {
+      tc.classList.add('hidden');
+      return;
+    }
+    const cfg = E.activeLevel.touchLayout || {};
+    const any = cfg.leftRight || cfg.dpad || cfg.lanes || cfg.action;
+    tc.classList.toggle('hidden', !any);
+    $('touch-left-group').classList.toggle('hidden', !cfg.leftRight);
+    $('touch-dpad-extra').classList.toggle('hidden', !cfg.dpad);
+    $('touch-lanes-group').classList.toggle('hidden', !cfg.lanes);
+    $('touch-right-group').classList.toggle('hidden', !cfg.action);
+    if (cfg.action) {
+      $('touch-action-btn').textContent = I.t(cfg.action);
+    }
+  }
+
+  function updateHud() {
+    const lvl = I.level(E.activeLevelId);
+    const days = E.days;
+    $('hud-days-num').textContent = `${days.toFixed(1)} ${I.t('dayUnit')}`;
+    $('hud-days-bar').style.width = `${(days / 30) * 100}%`;
+
+    const dw = $('days-widget');
+    dw.classList.toggle('danger', days <= 7.5);
+    dw.classList.toggle('warn', days > 7.5 && days <= 15);
+
+    $('hud').classList.toggle('fiction-mode', !!lvl.fiction);
+    $('hud-fiction-badge').classList.toggle('hidden', !lvl.fiction);
+    $('hud-level-tag').textContent = `${String(lvl.id).padStart(2, '0')} · ${lvl.title[I.lang]}`;
+
+    const pct = Math.round(E.progress * 100);
+    $('hud-progress-fill').style.width = `${pct}%`;
+    $('hud-progress-text').textContent = E.progressLabel || `${pct}%`;
+
+    $('hud-score').textContent = E.score.toLocaleString(I.lang === 'fr' ? 'fr-FR' : 'en-US');
+    const sb = $('hud-streak');
+    sb.classList.toggle('hidden', E.streak < 2);
+    sb.textContent = `×${E.streak}`;
+  }
+
+  function openPause(auto = false) {
+    if (!E.running) return;
+    E.setPaused(true);
+    $('pause-reason').textContent = auto ? I.t('pauseAuto') : I.t('pauseManual');
+    $('pause-main-actions').classList.remove('hidden');
+    $('pause-quit-confirm').classList.add('hidden');
+    refreshSettingsUI();
+    showScreen('pause');
+  }
+
+  function startFinaleAnim() {
+    $('finale-total-score').textContent = E.getTotalScore().toLocaleString(I.lang === 'fr' ? 'fr-FR' : 'en-US');
+    $('finale-total-stars').textContent = `${E.getTotalStars()} / 36`;
+    A.startMusic('finale');
+    finaleParticles = [];
+    const ctx = E.ctx;
+    let burstTimer = 0;
+
+    const loop = () => {
+      if (currentScreen !== 'finale') return;
+      ctx.fillStyle = 'rgba(7, 10, 15, 0.22)';
+      ctx.fillRect(0, 0, E.W, E.H);
+
+      burstTimer -= 0.016;
+      if (burstTimer <= 0 && !E.isReducedMotion()) {
+        burstTimer = 0.55;
+        const fx = 120 + Math.random() * (E.W - 240);
+        const fy = 80 + Math.random() * 220;
+        const colors = ['#a6ff00', '#f5b942', '#c5a3ff', '#38bdf8', '#ff5a5f'];
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        A.sfxFirework();
+        for (let i = 0; i < 28; i++) {
+          const ang = (i / 28) * Math.PI * 2 + Math.random() * 0.2;
+          const spd = 70 + Math.random() * 170;
+          finaleParticles.push({
+            x: fx, y: fy,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            color: col,
+            life: 1.1
+          });
+        }
+      }
+
+      for (let i = finaleParticles.length - 1; i >= 0; i--) {
+        const p = finaleParticles[i];
+        p.x += p.vx * 0.016;
+        p.y += p.vy * 0.016;
+        p.vy += 120 * 0.016;
+        p.life -= 0.016;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
+        if (p.life <= 0) finaleParticles.splice(i, 1);
+      }
+      ctx.globalAlpha = 1;
+      finaleRaf = requestAnimationFrame(loop);
+    };
+    finaleRaf = requestAnimationFrame(loop);
+  }
+
+  function stopFinaleAnim() {
+    if (finaleRaf) {
+      cancelAnimationFrame(finaleRaf);
+      finaleRaf = null;
+    }
+  }
+
+  // Wire Engine callbacks
+  E.onHudUpdate = updateHud;
+  E.onAutoPause = () => openPause(true);
+  E.onGodModeToggle = () => {
+    refreshSettingsUI();
+    if (currentScreen === 'levels') renderLevelGrid();
+  };
+  E.onInputModeChange = () => {
+    if (currentScreen === 'intro') renderIntroCard(pendingLevelId);
+    updateTouchVisibility();
+  };
+
+  E.onWin = ({ id, stars, daysLeft, bestStreak, score }) => {
+    const lvl = I.level(id);
+    $('win-title').textContent = `${String(id).padStart(2, '0')} · ${lvl.title[I.lang]}`;
+    $('win-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+    $('win-days').textContent = `${daysLeft.toFixed(1)} ${I.t('dayUnit')}`;
+    $('win-streak').textContent = `×${Math.max(1, bestStreak)}`;
+    $('win-score').textContent = score.toLocaleString(I.lang === 'fr' ? 'fr-FR' : 'en-US');
+    $('win-note').textContent = lvl.note[I.lang];
+    $('btn-next-level').textContent = id < 12 ? I.t('nextLevel') : I.t('toFinale');
+    showScreen('win');
+  };
+
+  E.onLose = () => {
+    showScreen('lose');
+  };
+
+  // Wire UI Events
+  function toggleLang() {
+    A.sfxClick();
+    E.setLanguage(E.save.lang === 'fr' ? 'en' : 'fr');
+    applyTranslations();
+  }
+
+  function toggleMute() {
+    E.setMuted(!E.save.muted);
+    refreshSettingsUI();
+    if (!E.save.muted) A.sfxClick();
+  }
+
+  function bindUI() {
+    // Language buttons
+    ['btn-title-lang', 'btn-levels-lang', 'btn-hud-lang', 'btn-pause-lang'].forEach((id) => {
+      $(id).addEventListener('click', toggleLang);
+    });
+
+    // Mute buttons
+    ['btn-title-mute', 'btn-hud-mute', 'btn-pause-mute'].forEach((id) => {
+      $(id).addEventListener('click', toggleMute);
+    });
+
+    // Reduced motion buttons
+    ['btn-title-motion', 'btn-pause-motion'].forEach((id) => {
+      $(id).addEventListener('click', () => {
+        E.toggleReducedMotion();
+        refreshSettingsUI();
+        A.sfxClick();
+      });
+    });
+
+    // Difficulty buttons
+    document.querySelectorAll('.diff-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        E.setDifficulty(btn.dataset.diff);
+        refreshSettingsUI();
+        A.sfxClick();
+      });
+    });
+
+    // Hidden 7-tap God Mode on Title Logo
+    $('title-logo').addEventListener('click', () => {
+      titleTapCount++;
+      clearTimeout(titleTapTimer);
+      titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 1600);
+      if (titleTapCount >= 7) {
+        titleTapCount = 0;
+        E.toggleGodMode();
+        A.sfxPerfect();
+      }
+    });
+
+    // Navigation
+    $('btn-play-continue').addEventListener('click', () => {
+      A.ensure(); A.sfxClick();
+      pendingLevelId = Math.min(12, E.save.unlocked || 1);
+      showScreen('intro');
+    });
+    $('btn-open-levels').addEventListener('click', () => { A.sfxClick(); showScreen('levels'); });
+    $('btn-levels-back').addEventListener('click', () => { A.sfxClick(); showScreen('title'); });
+    $('btn-view-closing').addEventListener('click', () => { A.sfxClick(); showScreen('closing'); });
+    $('btn-reset-progress').addEventListener('click', () => {
+      if (global.confirm(I.t('resetConfirm'))) {
+        E.resetProgress();
+        applyTranslations();
+        renderLevelGrid();
+      }
+    });
+
+    // Intro
+    $('btn-start-level').addEventListener('click', () => {
+      A.ensure(); A.sfxClick();
+      showScreen(null);
+      E.startLevel(pendingLevelId);
+      updateTouchVisibility();
+    });
+    $('btn-intro-back').addEventListener('click', () => { A.sfxClick(); showScreen('levels'); });
+
+    // Pause
+    $('btn-hud-pause').addEventListener('click', () => openPause(false));
+    $('btn-resume').addEventListener('click', () => {
+      A.sfxClick();
+      showScreen(null);
+      E.setPaused(false);
+    });
+    $('btn-pause-restart').addEventListener('click', () => {
+      A.sfxClick();
+      showScreen(null);
+      E.startLevel(E.activeLevelId);
+      updateTouchVisibility();
+    });
+    $('btn-pause-quit').addEventListener('click', () => {
+      A.sfxClick();
+      $('pause-main-actions').classList.add('hidden');
+      $('pause-quit-confirm').classList.remove('hidden');
+    });
+    $('btn-quit-no').addEventListener('click', () => {
+      A.sfxClick();
+      $('pause-quit-confirm').classList.add('hidden');
+      $('pause-main-actions').classList.remove('hidden');
+    });
+    $('btn-quit-yes').addEventListener('click', () => {
+      A.sfxClick();
+      E.stopLevel();
+      showScreen('levels');
+    });
+
+    // Win & Lose
+    $('btn-next-level').addEventListener('click', () => {
+      A.sfxClick();
+      if (E.activeLevelId < 12) {
+        pendingLevelId = E.activeLevelId + 1;
+        showScreen('intro');
+      } else {
+        showScreen('finale');
+      }
+    });
+    $('btn-win-replay').addEventListener('click', () => {
+      A.sfxClick();
+      showScreen(null);
+      E.startLevel(E.activeLevelId);
+      updateTouchVisibility();
+    });
+    $('btn-win-levels').addEventListener('click', () => { A.sfxClick(); showScreen('levels'); });
+
+    $('btn-retry').addEventListener('click', () => {
+      A.sfxClick();
+      showScreen(null);
+      E.startLevel(E.activeLevelId);
+      updateTouchVisibility();
+    });
+    $('btn-lose-levels').addEventListener('click', () => { A.sfxClick(); showScreen('levels'); });
+
+    // Finale & Closing
+    $('btn-to-closing').addEventListener('click', () => {
+      A.stopMusic(); A.sfxClick();
+      showScreen('closing');
+    });
+    $('btn-closing-menu').addEventListener('click', () => { A.sfxClick(); showScreen('title'); });
+    $('btn-closing-levels').addEventListener('click', () => { A.sfxClick(); showScreen('levels'); });
+
+    // Keyboard shortcuts for Pause (Escape / P) and Mute (M)
+    global.addEventListener('keydown', (e) => {
+      if ((e.code === 'Escape' || e.code === 'KeyP') && E.running) {
+        e.preventDefault();
+        if (E.paused) {
+          showScreen(null);
+          E.setPaused(false);
+        } else {
+          openPause(false);
+        }
+      } else if (e.code === 'KeyM') {
+        toggleMute();
+      }
+    });
+
+    // Virtual Touch Buttons
+    document.querySelectorAll('.touch-btn').forEach((btn) => {
+      const key = btn.dataset.key;
+      const down = (e) => {
+        e.preventDefault();
+        btn.classList.add('pressed');
+        E.setVirtualKey(key, true);
+      };
+      const up = (e) => {
+        e.preventDefault();
+        btn.classList.remove('pressed');
+        E.setVirtualKey(key, false);
+      };
+      btn.addEventListener('pointerdown', down);
+      btn.addEventListener('pointerup', up);
+      btn.addEventListener('pointercancel', up);
+      btn.addEventListener('pointerleave', up);
+    });
+
+    global.addEventListener('resize', updateTouchVisibility);
+  }
+
+  // Boot
+  E.init($('game-canvas'));
+  A.setMuted(E.save.muted);
+  bindUI();
+  applyTranslations();
+  S.whenReady(() => {
+    if (currentScreen === 'title') refreshTitle();
+  });
+  showScreen('title');
+})(window);
+
+</script>
+</body>
+</html>
