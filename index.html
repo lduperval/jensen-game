@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thirty Days / Trente Jours — Version Showcase</title>
+  <style>
+    :root {
+      --bg: #070a0f;
+      --surface: #0f1520;
+      --surface-2: #161f2e;
+      --border: rgba(118, 185, 0, 0.28);
+      --green: #76b900;
+      --green-bright: #a6ff00;
+      --gold: #f5b942;
+      --text: #eef3f8;
+      --muted: #93a3b8;
+      --font-ui: 'Segoe UI', 'Trebuchet MS', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 0%, #142030 0%, var(--bg) 70%);
+      color: var(--text);
+      font-family: var(--font-ui);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--green-bright);
+      text-transform: uppercase;
+    }
+
+    .lang-btn {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .lang-btn:hover { border-color: var(--green-bright); }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      background: linear-gradient(180deg, #121a27 0%, #0b1019 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    .portrait {
+      width: 108px;
+      height: 134px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 50% 35%, rgba(118, 185, 0, 0.24), rgba(10, 15, 24, 0.9));
+      border: 1px solid var(--border);
+      image-rendering: pixelated;
+      flex-shrink: 0;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4.5vw, 40px);
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      line-height: 1.08;
+      background: linear-gradient(180deg, #ffffff 20%, #b4ff4d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy p {
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--muted);
+      max-width: 620px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      background: linear-gradient(180deg, #141d2c 0%, #0d131d 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 20px;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent, var(--green-bright));
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .card-top {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .badge {
+      align-self: flex-start;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--accent, var(--green));
+      color: var(--accent, var(--green-bright));
+    }
+
+    .card h2 {
+      font-size: 21px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .file-path {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(147, 163, 184, 0.72);
+      word-break: break-all;
+    }
+
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #071000;
+      background: linear-gradient(180deg, #98e600, #649e00);
+      border: 1px solid var(--green-bright);
+      transition: filter 0.12s ease, transform 0.08s ease;
+    }
+
+    .launch-btn:hover { filter: brightness(1.12); }
+    .launch-btn:active { transform: scale(0.98); }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 16px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 620px) {
+      .hero {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <span class="eyebrow" id="t-eyebrow">THIRTY DAYS · VERSION HUB</span>
+      <button class="lang-btn" id="btn-lang">FR / EN</button>
+    </div>
+
+    <section class="hero">
+      <canvas id="portrait" class="portrait" width="120" height="149" aria-label="Jensen Huang pixel portrait"></canvas>
+      <div class="hero-copy">
+        <h1 id="t-title">Thirty Days — Build Showcase</h1>
+        <p id="t-subtitle">
+          Compare different playable interpretations of the same 12-level arcade brief. Each version opens in its own dedicated browser tab.
+        </p>
+      </div>
+    </section>
+
+    <section class="grid" id="versions-grid" aria-label="Game Versions"></section>
+
+    <footer id="t-footer">
+      Unofficial fictional fan games inspired by public facts. Not affiliated with Nvidia or Jensen Huang.
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Add or edit versions here — each link opens in a dedicated tab (target="_blank")
+      const VERSIONS = [
+        {
+          id: 'claude-fable-5.2',
+          name: 'Claude Fable 5.2',
+          badge: 'BUILD 01',
+          accent: '#f5b942',
+          href: 'claude-fable-5.2/Trente%20jours.html',
+          fileLabel: 'claude-fable-5.2/Trente jours.html',
+          desc: {
+            en: 'Standalone HTML build generated from the Twelve Labours brief.',
+            fr: 'Version HTML autonome générée à partir du brief des Douze Travaux.'
+          }
+        },
+        {
+          id: 'gemini-neon',
+          name: 'Gemini Neon',
+          badge: 'BUILD 02',
+          accent: '#a6ff00',
+          href: 'gemini-neon/index.html',
+          fileLabel: 'gemini-neon/index.html',
+          desc: {
+            en: 'Standalone HTML build generated from the Twelve Labours brief.',
+            fr: 'Version HTML autonome générée à partir du brief des Douze Travaux.'
+          }
+        },
+        {
+          id: 'gpt-6.2-astra',
+          name: 'GPT 6.2 Astra',
+          badge: 'BUILD 03',
+          accent: '#38bdf8',
+          href: 'gpt-6.2-astra/Thirty-Days.html',
+          fileLabel: 'gpt-6.2-astra/Thirty-Days.html',
+          desc: {
+            en: 'Standalone HTML build generated from the Twelve Labours brief.',
+            fr: 'Version HTML autonome générée à partir du brief des Douze Travaux.'
+          }
+        }
+      ];
+
+      const COPY = {
+        en: {
+          eyebrow: 'THIRTY DAYS · VERSION HUB',
+          title: 'Thirty Days — Build Showcase',
+          subtitle: 'Compare different playable interpretations of the same 12-level arcade brief. Each version opens in its own dedicated browser tab.',
+          launch: 'PLAY IN NEW TAB ↗',
+          footer: 'Unofficial fictional fan games inspired by public facts. Not affiliated with Nvidia or Jensen Huang.'
+        },
+        fr: {
+          eyebrow: 'TRENTE JOURS · COMPARATEUR',
+          title: 'Trente Jours — Galerie des Versions',
+          subtitle: 'Comparez différentes interprétations jouables du même brief arcade en 12 niveaux. Chaque version s\'ouvre dans un onglet dédié.',
+          launch: 'JOUER DANS UN NOUVEL ONGLET ↗',
+          footer: 'Jeux de fan fictifs inspirés de faits publics. Non affiliés à Nvidia ni à Jensen Huang.'
+        }
+      };
+
+      let lang = (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+
+      function render() {
+        const c = COPY[lang];
+        document.documentElement.lang = lang;
+        document.getElementById('t-eyebrow').textContent = c.eyebrow;
+        document.getElementById('t-title').textContent = c.title;
+        document.getElementById('t-subtitle').textContent = c.subtitle;
+        document.getElementById('t-footer').textContent = c.footer;
+
+        const grid = document.getElementById('versions-grid');
+        grid.innerHTML = '';
+        for (const v of VERSIONS) {
+          const card = document.createElement('article');
+          card.className = 'card';
+          card.style.setProperty('--accent', v.accent);
+          card.innerHTML = `
+            <div class="card-top">
+              <span class="badge">${v.badge}</span>
+              <h2>${v.name}</h2>
+              <p>${v.desc[lang]}</p>
+              <div class="file-path">${v.fileLabel}</div>
+            </div>
+            <a class="launch-btn" href="${v.href}" target="_blank" rel="noopener noreferrer">${c.launch}</a>
+          `;
+          grid.appendChild(card);
+        }
+      }
+
+      document.getElementById('btn-lang').addEventListener('click', () => {
+        lang = lang === 'en' ? 'fr' : 'en';
+        render();
+      });
+
+      // Draw pixel portrait from shared sprite sheet
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.getElementById('portrait');
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, 18, 20, 464, 576, 4, 4, canvas.width - 8, canvas.height - 8);
+      };
+      img.src = 'assets/Jensen Huang Pixel Sprite Sheet.png';
+
+      render();
+    })();
+  </script>
+</body>
+</html>
